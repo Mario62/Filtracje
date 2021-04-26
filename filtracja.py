@@ -108,7 +108,7 @@ class Filtracja:
 
     def select_file(self):
         filetypes = (
-            ('BMP files', '*.*'),
+            ('BMP files', '*.bmp'),
             ('text files', '*.txt')
 
         )
