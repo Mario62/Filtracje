@@ -28,7 +28,7 @@ class Filtracja:
         self.options = ("Dolnoprzepustowa", "Górnoprzepustowa", "Gaussian LP",
                         "Gaussian HP",
                         "Butterworth LP", "Butterworth HP")
-        self.drop = OptionMenu(window, self.clicked, *self.options, command=lambda e: self.switch())
+        self.drop = OptionMenu(window, self.clicked, *self.options, command=self.switch)
         self.drop2 = OptionMenu(window, self.clicked2, "Okrągły", "Kwadratowy")
         self.dropLab.grid(row=1, column=0)
         self.drop.grid(row=1, column=1)
@@ -39,31 +39,50 @@ class Filtracja:
         self.button.grid(row=0, column=1)
         # self.button3 = Button(root, text="Show selection", command=self.show).grid(row=3, column=0)
 
-    def switch(self):
+    def switch(self, value):
         """Metoda służy do przypisywania metod z odpowiednimi maskami do odpowiadających im wyborów z OptionMenu"""
         option = self.clicked.get()
-
+        print(value)
         if option == "Dolnoprzepustowa":
             print("HMM")
-            self.button.grid_forget()                                       #usuwa istniejący przycisk
-            self.button = Button(root, text="check", command=self.plotLP)   #tworzy nowy przycisk
-            self.button.grid(row=0, column=1)                               #ustawia nowy przycisk
-        if option == "Górnoprzepustowa":
+            self.button.grid_forget()  # usuwa istniejący przycisk
+            self.button = Button(root, text="check", command=self.plotLP)  # tworzy nowy przycisk
+            self.button.grid(row=0, column=1)  # ustawia nowy przycisk
+        elif option == "Górnoprzepustowa":
             print("HMM2")
-            self.button.grid_forget()                                       #usuwa istniejący przycisk
-            self.button = Button(root, text="check", command=self.plotHP)   #tworzy nowy przycisk
-            self.button.grid(row=0, column=1)                               #ustawia nowy przycisk
+            self.button.grid_forget()  # usuwa istniejący przycisk
+            self.button = Button(root, text="check", command=self.plotHP)  # tworzy nowy przycisk
+            self.button.grid(row=0, column=1)  # ustawia nowy przycisk
+        elif option == "Gaussian LP":
+            print("HMM2")
+            self.button.grid_forget()  # usuwa istniejący przycisk
+            self.button = Button(root, text="check", command=self.plotGaussLP)  # tworzy nowy przycisk
+            self.button.grid(row=0, column=1)  # ustawia nowy przycisk
+        elif option == "Gaussian HP":
+            print("HMM2")
+            self.button.grid_forget()  # usuwa istniejący przycisk
+            self.button = Button(root, text="check", command=self.plotGaussHP)  # tworzy nowy przycisk
+            self.button.grid(row=0, column=1)  # ustawia nowy przycisk
+        elif option == "Butterworth LP":
+            print("HMM2")
+            self.button.grid_forget()  # usuwa istniejący przycisk
+            self.button = Button(root, text="check", command=self.plotButterLP)  # tworzy nowy przycisk
+            self.button.grid(row=0, column=1)  # ustawia nowy przycisk
+        elif option == "Butterworth HP":
+            print("HMM2")
+            self.button.grid_forget()  # usuwa istniejący przycisk
+            self.button = Button(root, text="check", command=self.plotButterHP)  # tworzy nowy przycisk
+            self.button.grid(row=0, column=1)  # ustawia nowy przycisk
         else:
             """Jeżeli wybrana opcja z menu nie została jeszcze zaimplementowana, usuń przycisk"""
             self.button.grid_forget()
-
-
 
     def show(self):
         myLabel = Label(root, text=self.clicked.get()).grid(row=3, column=1)
 
     def plotLP(self):
-        plt.figure(figsize=(6.4 * 5, 4.8 * 5), constrained_layout=False)
+        fig = plt.figure(figsize=(6.4 * 5, 4.8 * 5), constrained_layout=False)
+        fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
 
         img = cv2.imread(self.imaddr, 0)
         plt.subplot(161), plt.imshow(img, "gray"), plt.title("Oryginalny obraz")
@@ -87,8 +106,9 @@ class Filtracja:
         plt.show()
 
     def plotHP(self):
-        plt.figure(figsize=(6.4 * 5, 4.8 * 5), constrained_layout=False)
-
+        fig = plt.figure(figsize=(6.4 * 5, 4.8 * 5), constrained_layout=False)
+        fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
+        
         img = cv2.imread(self.imaddr, 0)
         plt.subplot(151), plt.imshow(img, "gray"), plt.title("Original Image")
 
@@ -102,6 +122,118 @@ class Filtracja:
         plt.subplot(152), plt.imshow(np.abs(HighPass), "gray"), plt.title("High Pass Filter")
 
         HighPassCenter = center * self.idealFilterHP(50, img.shape)
+        plt.subplot(153), plt.imshow(np.log(1 + np.abs(HighPassCenter)), "gray"), plt.title(
+            "Centered Spectrum multiply High Pass Filter")
+
+        HighPass = np.fft.ifftshift(HighPassCenter)
+        plt.subplot(154), plt.imshow(np.log(1 + np.abs(HighPass)), "gray"), plt.title("Decentralize")
+
+        inverse_HighPass = np.fft.ifft2(HighPass)
+        plt.subplot(155), plt.imshow(np.abs(inverse_HighPass), "gray"), plt.title("Processed Image")
+
+        plt.show()
+
+    def plotGaussLP(self):
+        fig = plt.figure(figsize=(6.4 * 5, 4.8 * 5), constrained_layout=False)
+        fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
+        
+        img = cv2.imread(self.imaddr, 0)
+        plt.subplot(151), plt.imshow(img, "gray"), plt.title("Original Image")
+
+        original = np.fft.fft2(img)
+        # plt.subplot(162), plt.imshow(np.log(1 + np.abs(original)), "gray"), plt.title("Spectrum")
+
+        center = np.fft.fftshift(original)
+        # plt.subplot(163), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Centered Spectrum")
+
+        LowPass = self.gaussianLP(50, img.shape)
+        plt.subplot(152), plt.imshow(np.abs(LowPass), "gray"), plt.title("Low Pass Filter")
+
+        LowPassCenter = center * self.gaussianLP(50, img.shape)
+        plt.subplot(153), plt.imshow(np.log(1 + np.abs(LowPassCenter)), "gray"), plt.title(
+            "Centered Spectrum multiply Low Pass Filter")
+
+        LowPass = np.fft.ifftshift(LowPassCenter)
+        plt.subplot(154), plt.imshow(np.log(1 + np.abs(LowPass)), "gray"), plt.title("Decentralize")
+
+        inverse_LowPass = np.fft.ifft2(LowPass)
+        plt.subplot(155), plt.imshow(np.abs(inverse_LowPass), "gray"), plt.title("Processed Image")
+
+        plt.show()
+
+    def plotGaussHP(self):
+        fig = plt.figure(figsize=(6.4 * 5, 4.8 * 5), constrained_layout=False)
+        fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
+        
+        img = cv2.imread(self.imaddr, 0)
+        plt.subplot(151), plt.imshow(img, "gray"), plt.title("Original Image")
+
+        original = np.fft.fft2(img)
+        # plt.subplot(162), plt.imshow(np.log(1 + np.abs(original)), "gray"), plt.title("Spectrum")
+
+        center = np.fft.fftshift(original)
+        # plt.subplot(163), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Centered Spectrum")
+
+        HighPass = self.gaussianHP(50, img.shape)
+        plt.subplot(152), plt.imshow(HighPass, "gray"), plt.title("Butterworth High Pass Filter (n=20)")
+
+        HighPassCenter = center * self.gaussianHP(50, img.shape)
+        plt.subplot(153), plt.imshow(np.log(1 + np.abs(HighPassCenter)), "gray"), plt.title(
+            "Centered Spectrum multiply High Pass Filter")
+
+        HighPass = np.fft.ifftshift(HighPassCenter)
+        plt.subplot(154), plt.imshow(np.log(1 + np.abs(HighPass)), "gray"), plt.title("Decentralize")
+
+        inverse_HighPass = np.fft.ifft2(HighPass)
+        plt.subplot(155), plt.imshow(np.abs(inverse_HighPass), "gray"), plt.title("Processed Image")
+
+        plt.show()
+
+    def plotButterLP(self):
+        fig = plt.figure(figsize=(6.4 * 5, 4.8 * 5), constrained_layout=False)
+        fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
+        
+        img = cv2.imread(self.imaddr, 0)
+        plt.subplot(151), plt.imshow(img, "gray"), plt.title("Original Image")
+
+        original = np.fft.fft2(img)
+        # plt.subplot(162), plt.imshow(np.log(1 + np.abs(original)), "gray"), plt.title("Spectrum")
+
+        center = np.fft.fftshift(original)
+        # plt.subplot(163), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Centered Spectrum")
+
+        LowPass = self.butterworthLP(50, img.shape, 20)
+        plt.subplot(152), plt.imshow(np.abs(LowPass), "gray"), plt.title("Low Pass Filter")
+
+        LowPassCenter = center * self.butterworthLP(50, img.shape, 20)
+        plt.subplot(153), plt.imshow(np.log(1 + np.abs(LowPassCenter)), "gray"), plt.title(
+            "Centered Spectrum multiply Low Pass Filter")
+
+        LowPass = np.fft.ifftshift(LowPassCenter)
+        plt.subplot(154), plt.imshow(np.log(1 + np.abs(LowPass)), "gray"), plt.title("Decentralize")
+
+        inverse_LowPass = np.fft.ifft2(LowPass)
+        plt.subplot(155), plt.imshow(np.abs(inverse_LowPass), "gray"), plt.title("Processed Image")
+
+        plt.show()
+
+    def plotButterHP(self):
+        fig = plt.figure(figsize=(6.4 * 5, 4.8 * 5), constrained_layout=False)
+        fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
+        
+        img = cv2.imread(self.imaddr, 0)
+        plt.subplot(151), plt.imshow(img, "gray"), plt.title("Original Image")
+
+        original = np.fft.fft2(img)
+        # plt.subplot(162), plt.imshow(np.log(1 + np.abs(original)), "gray"), plt.title("Spectrum")
+
+        center = np.fft.fftshift(original)
+        # plt.subplot(163), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Centered Spectrum")
+
+        HighPass = self.butterworthHP(50, img.shape, 20)
+        plt.subplot(152), plt.imshow(np.abs(HighPass), "gray"), plt.title("High Pass Filter")
+
+        HighPassCenter = center * self.butterworthHP(50, img.shape, 20)
         plt.subplot(153), plt.imshow(np.log(1 + np.abs(HighPassCenter)), "gray"), plt.title(
             "Centered Spectrum multiply High Pass Filter")
 
