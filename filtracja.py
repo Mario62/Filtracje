@@ -12,20 +12,23 @@ from PIL import ImageTk, Image
 class Filtracja:
 
     def __init__(self, window, imaddr):
+        self.button = Button(window, text="check")
         self.window = window
         # self.filename = ""
         self.imaddr = imaddr
         # self.box = Entry(window)
-        self.button = Button(window, text="check", command=self.plot)
+
         self.button2 = Button(window, text="Open file", command=self.select_file)
         self.dropLab = Label(root, text="Wybór maski")
         self.drop2Lab = Label(root, text="Wybór kształtu")
 
         self.clicked = StringVar()
         self.clicked2 = StringVar()
-        self.drop = OptionMenu(root, self.clicked, "Dolnoprzepustowa", "Górnoprzepustowa", "Gaussian LP", "Gaussian HP",
-                               "Butterworth LP", "Butterworth HP")
-        self.drop2 = OptionMenu(root, self.clicked2, "Okrągły", "Kwadratowy")
+        self.options = ("Dolnoprzepustowa", "Górnoprzepustowa", "Gaussian LP",
+                        "Gaussian HP",
+                        "Butterworth LP", "Butterworth HP")
+        self.drop = OptionMenu(window, self.clicked, *self.options, command=lambda e: self.switch())
+        self.drop2 = OptionMenu(window, self.clicked2, "Okrągły", "Kwadratowy")
         self.dropLab.grid(row=1, column=0)
         self.drop.grid(row=1, column=1)
         self.drop2Lab.grid(row=2, column=0)
@@ -33,13 +36,25 @@ class Filtracja:
         # self.box.pack()
         self.button2.grid(row=0, column=0)
         self.button.grid(row=0, column=1)
-        self.button3 = Button(root, text="Show selection", command=self.show).grid(row=3, column=0)
+        # self.button3 = Button(root, text="Show selection", command=self.show).grid(row=3, column=0)
+
+    def switch(self):
+        option = self.clicked.get()
+
+        if option == "Dolnoprzepustowa":
+            print("HMM")
+            self.button.grid_forget()
+            B1 = Button(root, text="check", command=self.plotLP)
+            B1.grid(row=0, column=1)
+
+    def change_button(self, widget, type):
+        # This will remove the widget from toplevel
+        widget.pack_forget()
 
     def show(self):
-
         myLabel = Label(root, text=self.clicked.get()).grid(row=3, column=1)
 
-    def plot(self):
+    def plotLP(self):
         plt.figure(figsize=(6.4 * 5, 4.8 * 5), constrained_layout=False)
 
         img = cv2.imread(self.imaddr, 0)
@@ -62,6 +77,8 @@ class Filtracja:
         plt.subplot(166), plt.imshow(np.abs(inverse_LowPass), "gray"), plt.title("Processed Image")
 
         plt.show()
+
+    # def plotHP(self):
 
     def distance(self, point1, point2):
         return math.sqrt((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2)
