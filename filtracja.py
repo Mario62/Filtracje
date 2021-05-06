@@ -25,9 +25,11 @@ class Filtracja:
 
         self.clicked = StringVar()
         self.clicked2 = StringVar()
-        self.options = ("Dolnoprzepustowa", "Górnoprzepustowa", "Gaussian LP",
-                        "Gaussian HP",
-                        "Butterworth LP", "Butterworth HP")
+        self.options = ("Dolnoprzepustowa Okrągła", "Górnoprzepustowa Okrągła","Dolnoprzepustowa Kwadratowa",
+                        "Górnoprzepustowa Kwadratowa", "Gaussian LP",
+                        "Gaussian HP", "Butterworth LP", "Butterworth HP",
+                        "Środkowo-p kwadrat LP", "Środkowo-p kwadrat HP", "Środkowo-p pierścień LP",
+                        "Środkowo-p pierścień HP",)
         self.drop = OptionMenu(window, self.clicked, *self.options, command=self.switch)
         self.drop2 = OptionMenu(window, self.clicked2, "Okrągły", "Kwadratowy")
         self.dropLab.grid(row=1, column=0)
@@ -43,15 +45,25 @@ class Filtracja:
         """Metoda służy do przypisywania metod z odpowiednimi maskami do odpowiadających im wyborów z OptionMenu"""
         option = self.clicked.get()
         print(value)
-        if option == "Dolnoprzepustowa":
-            print("HMM")
+        if option == "Dolnoprzepustowa Okrągła":
+            print("LP KOLO")
             self.button.grid_forget()  # usuwa istniejący przycisk
             self.button = Button(root, text="check", command=self.plotLP)  # tworzy nowy przycisk
             self.button.grid(row=0, column=1)  # ustawia nowy przycisk
-        elif option == "Górnoprzepustowa":
-            print("HMM2")
+        elif option == "Górnoprzepustowa Okrągła":
+            print("HP KOLO")
             self.button.grid_forget()  # usuwa istniejący przycisk
             self.button = Button(root, text="check", command=self.plotHP)  # tworzy nowy przycisk
+            self.button.grid(row=0, column=1)  # ustawia nowy przycisk
+        elif option == "Dolnoprzepustowa Kwadratowa":
+            print("LP KWADRAT")
+            self.button.grid_forget()  # usuwa istniejący przycisk
+            self.button = Button(root, text="check", command=self.plotLPS)  # tworzy nowy przycisk
+            self.button.grid(row=0, column=1)  # ustawia nowy przycisk
+        elif option == "Górnoprzepustowa Kwadratowa":
+            print("HP KOLO")
+            self.button.grid_forget()  # usuwa istniejący przycisk
+            self.button = Button(root, text="check", command=self.plotHPS)  # tworzy nowy przycisk
             self.button.grid(row=0, column=1)  # ustawia nowy przycisk
         elif option == "Gaussian LP":
             print("HMM2")
@@ -72,6 +84,22 @@ class Filtracja:
             print("HMM2")
             self.button.grid_forget()  # usuwa istniejący przycisk
             self.button = Button(root, text="check", command=self.plotButterHP)  # tworzy nowy przycisk
+            self.button.grid(row=0, column=1)  # ustawia nowy przycisk
+        elif option == "Środkowo-p pierścień LP":
+            self.button.grid_forget()  # usuwa istniejący przycisk
+            self.button = Button(root, text="check", command=self.plotMPCirLP())  # tworzy nowy przycisk
+            self.button.grid(row=0, column=1)  # ustawia nowy przycisk
+        elif option == "Środkowo-p pierścień HP":
+            self.button.grid_forget()  # usuwa istniejący przycisk
+            self.button = Button(root, text="check", command=self.plotMPCirHP())  # tworzy nowy przycisk
+            self.button.grid(row=0, column=1)  # ustawia nowy przycisk
+        elif option == "Środkowo-p kwadrat LP":
+            self.button.grid_forget()  # usuwa istniejący przycisk
+            self.button = Button(root, text="check", command=self.plotMPSqrLP)  # tworzy nowy przycisk
+            self.button.grid(row=0, column=1)  # ustawia nowy przycisk
+        elif option == "Środkowo-p kwadrat HP":
+            self.button.grid_forget()  # usuwa istniejący przycisk
+            self.button = Button(root, text="check", command=self.plotMPSqrHP)  # tworzy nowy przycisk
             self.button.grid(row=0, column=1)  # ustawia nowy przycisk
         else:
             """Jeżeli wybrana opcja z menu nie została jeszcze zaimplementowana, usuń przycisk"""
@@ -122,6 +150,59 @@ class Filtracja:
         plt.subplot(152), plt.imshow(np.abs(HighPass), "gray"), plt.title("High Pass Filter")
 
         HighPassCenter = center * self.idealFilterHP(50, img.shape)
+        plt.subplot(153), plt.imshow(np.log(1 + np.abs(HighPassCenter)), "gray"), plt.title(
+            "Centered Spectrum multiply High Pass Filter")
+
+        HighPass = np.fft.ifftshift(HighPassCenter)
+        plt.subplot(154), plt.imshow(np.log(1 + np.abs(HighPass)), "gray"), plt.title("Decentralize")
+
+        inverse_HighPass = np.fft.ifft2(HighPass)
+        plt.subplot(155), plt.imshow(np.abs(inverse_HighPass), "gray"), plt.title("Processed Image")
+
+        plt.show()
+
+    def plotLPS(self):
+        fig = plt.figure(figsize=(6.4 * 5, 4.8 * 5), constrained_layout=False)
+        fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
+
+        img = cv2.imread(self.imaddr, 0)
+        plt.subplot(161), plt.imshow(img, "gray"), plt.title("Oryginalny obraz")
+
+        original = np.fft.fft2(img)
+        plt.subplot(162), plt.imshow(np.log(1 + np.abs(original)), "gray"), plt.title("Spektrum")
+
+        center = np.fft.fftshift(original)
+        plt.subplot(163), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Spektrum w centrum")
+
+        LowPassCenter = center * self.squareLP(50, img.shape)
+        plt.subplot(164), plt.imshow(np.log(1 + np.abs(LowPassCenter)), "gray"), plt.title(
+            "Centrum * filtr dolnoprzepustowy")
+
+        LowPass = np.fft.ifftshift(LowPassCenter)
+        plt.subplot(165), plt.imshow(np.log(1 + np.abs(LowPass)), "gray"), plt.title("Decentralizacja")
+
+        inverse_LowPass = np.fft.ifft2(LowPass)
+        plt.subplot(166), plt.imshow(np.abs(inverse_LowPass), "gray"), plt.title("Processed Image")
+
+        plt.show()
+
+    def plotHPS(self):
+        fig = plt.figure(figsize=(6.4 * 5, 4.8 * 5), constrained_layout=False)
+        fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
+
+        img = cv2.imread(self.imaddr, 0)
+        plt.subplot(151), plt.imshow(img, "gray"), plt.title("Original Image")
+
+        original = np.fft.fft2(img)
+        # plt.subplot(162), plt.imshow(np.log(1 + np.abs(original)), "gray"), plt.title("Spectrum")
+
+        center = np.fft.fftshift(original)
+        # plt.subplot(163), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Centered Spectrum")
+
+        HighPass = self.squareHP(50, img.shape)
+        plt.subplot(152), plt.imshow(np.abs(HighPass), "gray"), plt.title("High Pass Filter")
+
+        HighPassCenter = center * self.squareHP(50, img.shape)
         plt.subplot(153), plt.imshow(np.log(1 + np.abs(HighPassCenter)), "gray"), plt.title(
             "Centered Spectrum multiply High Pass Filter")
 
@@ -245,8 +326,122 @@ class Filtracja:
 
         plt.show()
 
+    def plotMPCirLP(self):
+        fig = plt.figure(figsize=(6.4 * 5, 4.8 * 5), constrained_layout=False)
+        fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
+
+        img = cv2.imread(self.imaddr, 0)
+        plt.subplot(151), plt.imshow(img, "gray"), plt.title("Original Image")
+
+        original = np.fft.fft2(img)
+        # plt.subplot(162), plt.imshow(np.log(1 + np.abs(original)), "gray"), plt.title("Spectrum")
+
+        center = np.fft.fftshift(original)
+        # plt.subplot(163), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Centered Spectrum")
+
+        LowPass = self.mediumLP1(50, img.shape, 20)
+        plt.subplot(152), plt.imshow(np.abs(LowPass), "gray"), plt.title("Low Pass Filter")
+
+        LowPassCenter = center * self.mediumLP1(50, img.shape, 20)
+        plt.subplot(153), plt.imshow(np.log(1 + np.abs(LowPassCenter)), "gray"), plt.title(
+            "Centered Spectrum multiply Low Pass Filter")
+
+        LowPass = np.fft.ifftshift(LowPassCenter)
+        plt.subplot(154), plt.imshow(np.log(1 + np.abs(LowPass)), "gray"), plt.title("Decentralize")
+
+        inverse_LowPass = np.fft.ifft2(LowPass)
+        plt.subplot(155), plt.imshow(np.abs(inverse_LowPass), "gray"), plt.title("Processed Image")
+
+        plt.show()
+
+    def plotMPSqrLP(self):
+        fig = plt.figure(figsize=(6.4 * 5, 4.8 * 5), constrained_layout=False)
+        fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
+
+        img = cv2.imread(self.imaddr, 0)
+        plt.subplot(151), plt.imshow(img, "gray"), plt.title("Original Image")
+
+        original = np.fft.fft2(img)
+        # plt.subplot(162), plt.imshow(np.log(1 + np.abs(original)), "gray"), plt.title("Spectrum")
+
+        center = np.fft.fftshift(original)
+        # plt.subplot(163), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Centered Spectrum")
+
+        LowPass = self.mediumLP2(50, img.shape, 20)
+        plt.subplot(152), plt.imshow(np.abs(LowPass), "gray"), plt.title("Low Pass Filter")
+
+        LowPassCenter = center * self.mediumLP2(50, img.shape, 20)
+        plt.subplot(153), plt.imshow(np.log(1 + np.abs(LowPassCenter)), "gray"), plt.title(
+            "Centered Spectrum multiply Low Pass Filter")
+
+        LowPass = np.fft.ifftshift(LowPassCenter)
+        plt.subplot(154), plt.imshow(np.log(1 + np.abs(LowPass)), "gray"), plt.title("Decentralize")
+
+        inverse_LowPass = np.fft.ifft2(LowPass)
+        plt.subplot(155), plt.imshow(np.abs(inverse_LowPass), "gray"), plt.title("Processed Image")
+
+        plt.show()
+
+    def plotMPCirHP(self):
+        fig = plt.figure(figsize=(6.4 * 5, 4.8 * 5), constrained_layout=False)
+        fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
+
+        img = cv2.imread(self.imaddr, 0)
+        plt.subplot(151), plt.imshow(img, "gray"), plt.title("Original Image")
+
+        original = np.fft.fft2(img)
+        # plt.subplot(162), plt.imshow(np.log(1 + np.abs(original)), "gray"), plt.title("Spectrum")
+
+        center = np.fft.fftshift(original)
+        # plt.subplot(163), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Centered Spectrum")
+
+        HighPass = self.mediumHP1(50, img.shape, 20)
+        plt.subplot(152), plt.imshow(np.abs(HighPass), "gray"), plt.title("Low Pass Filter")
+
+        HighPassCenter = center * self.mediumHP1(50, img.shape, 20)
+        plt.subplot(153), plt.imshow(np.log(1 + np.abs(HighPassCenter)), "gray"), plt.title(
+            "Centered Spectrum multiply Low Pass Filter")
+
+        HighPass = np.fft.ifftshift(HighPassCenter)
+        plt.subplot(154), plt.imshow(np.log(1 + np.abs(HighPass)), "gray"), plt.title("Decentralize")
+
+        inverse_HighPass = np.fft.ifft2(HighPass)
+        plt.subplot(155), plt.imshow(np.abs(inverse_HighPass), "gray"), plt.title("Processed Image")
+
+        plt.show()
+
+    def plotMPSqrHP(self):
+        fig = plt.figure(figsize=(6.4 * 5, 4.8 * 5), constrained_layout=False)
+        fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
+
+        img = cv2.imread(self.imaddr, 0)
+        plt.subplot(151), plt.imshow(img, "gray"), plt.title("Original Image")
+
+        original = np.fft.fft2(img)
+        # plt.subplot(162), plt.imshow(np.log(1 + np.abs(original)), "gray"), plt.title("Spectrum")
+
+        center = np.fft.fftshift(original)
+        # plt.subplot(163), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Centered Spectrum")
+
+        HighPass = self.mediumHP2(50, img.shape, 20)
+        plt.subplot(152), plt.imshow(np.abs(HighPass), "gray"), plt.title("Low Pass Filter")
+
+        HighPassCenter = center * self.mediumHP2(50, img.shape, 20)
+        plt.subplot(153), plt.imshow(np.log(1 + np.abs(HighPassCenter)), "gray"), plt.title(
+            "Centered Spectrum multiply Low Pass Filter")
+
+        HighPass = np.fft.ifftshift(HighPassCenter)
+        plt.subplot(154), plt.imshow(np.log(1 + np.abs(HighPass)), "gray"), plt.title("Decentralize")
+
+        inverse_HighPass = np.fft.ifft2(HighPass)
+        plt.subplot(155), plt.imshow(np.abs(inverse_HighPass), "gray"), plt.title("Processed Image")
+
+        plt.show()
+
+
     def distance(self, point1, point2):
         return math.sqrt((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2)
+
 
     def idealFilterLP(self, D0, imgShape):
         base = np.zeros(imgShape[:2])
@@ -302,6 +497,82 @@ class Filtracja:
         for x in range(cols):
             for y in range(rows):
                 base[y, x] = 1 - math.exp(((-self.distance((y, x), center) ** 2) / (2 * (D0 ** 2))))
+        return base
+
+    def mediumLP1(self, D0, imgShape, width):
+        base = np.zeros(imgShape[:2])
+        rows, cols = imgShape[:2]
+        center = (rows / 2, cols / 2)
+        for x in range(cols):
+            for y in range(rows):
+                if self.distance((y, x), center) < D0+width:
+                    base[y, x] = 1
+        for x in range(cols):
+            for y in range(rows):
+                if self.distance((y, x), center) < D0:
+                    base[y, x] = 0
+        return base
+
+    def mediumHP1(self, D0, imgShape, width):
+        base = np.ones(imgShape[:2])
+        rows, cols = imgShape[:2]
+        center = (rows / 2, cols / 2)
+        for x in range(cols):
+            for y in range(rows):
+                if self.distance((y, x), center) < D0+width:
+                    base[y, x] = 0
+        for x in range(cols):
+            for y in range(rows):
+                if self.distance((y, x), center) < D0:
+                    base[y, x] = 1
+        return base
+
+    def mediumLP2(self, D0, imgShape, width):
+        base = np.zeros(imgShape[:2])
+        rows, cols = imgShape[:2]
+        center = (rows / 2, cols / 2)
+        for x in range(cols):
+            for y in range(rows):
+                if x >= center[0]-D0-width and x<= center[0]+D0+width and y >= center[1]-D0-width and y<= center[1]+D0+width:
+                    base[y, x] = 1
+        for x in range(cols):
+            for y in range(rows):
+                if x >= center[0]-D0 and x<= center[0]+D0 and y >= center[1]-D0 and y<= center[1]+D0:
+                    base[y, x] = 0
+        return base
+
+    def mediumHP2(self, D0, imgShape, width):
+        base = np.ones(imgShape[:2])
+        rows, cols = imgShape[:2]
+        center = (rows / 2, cols / 2)
+        for x in range(cols):
+            for y in range(rows):
+                if x >= center[0]-D0-width and x<= center[0]+D0+width and y >= center[1]-D0-width and y<= center[1]+D0+width:
+                    base[y, x] = 0
+        for x in range(cols):
+            for y in range(rows):
+                if x >= center[0]-D0 and x<= center[0]+D0 and y >= center[1]-D0 and y<= center[1]+D0:
+                    base[y, x] = 1
+        return base
+
+    def squareLP(self, D0, imgShape):
+        base = np.zeros(imgShape[:2])
+        rows, cols = imgShape[:2]
+        center = (rows / 2, cols / 2)
+        for x in range(cols):
+            for y in range(rows):
+                if x >= center[0]-D0 and x<= center[0]+D0 and y >= center[1]-D0 and y<= center[1]+D0:
+                    base[y, x] = 1
+        return base
+
+    def squareHP(self, D0, imgShape):
+        base = np.ones(imgShape[:2])
+        rows, cols = imgShape[:2]
+        center = (rows / 2, cols / 2)
+        for x in range(cols):
+            for y in range(rows):
+                if x >= center[0]-D0 and x<= center[0]+D0 and y >= center[1]-D0 and y<= center[1]+D0:
+                    base[y, x] = 0
         return base
 
     def select_file(self):
