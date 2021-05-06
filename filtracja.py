@@ -39,17 +39,18 @@ class Filtracja:
         # self.button3 = Button(root, text="Show selection", command=self.show).grid(row=3, column=0)
 
     def switch(self):
+        """Metoda służy do przypisywania metod z odpowiednimi maskami do odpowiadających im wyborów z OptionMenu"""
         option = self.clicked.get()
 
         if option == "Dolnoprzepustowa":
             print("HMM")
             self.button.grid_forget()
-            B1 = Button(root, text="check", command=self.plotLP)
-            B1.grid(row=0, column=1)
+            self.button = Button(root, text="check", command=self.plotLP)
+            self.button.grid(row=0, column=1)
+        else:
+            self.button.grid_forget()
 
-    def change_button(self, widget, type):
-        # This will remove the widget from toplevel
-        widget.pack_forget()
+
 
     def show(self):
         myLabel = Label(root, text=self.clicked.get()).grid(row=3, column=1)
