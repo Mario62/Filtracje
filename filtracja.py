@@ -12,6 +12,7 @@ from PIL import ImageTk, Image
 class Filtracja:
 
     def __init__(self, window, imaddr):
+        """Metoda init w tym wypadku służy do budowania całego GUI"""
         self.button = Button(window, text="check")
         self.window = window
         # self.filename = ""
@@ -53,6 +54,7 @@ class Filtracja:
             self.button = Button(root, text="check", command=self.plotHP)   #tworzy nowy przycisk
             self.button.grid(row=0, column=1)                               #ustawia nowy przycisk
         else:
+            """Jeżeli wybrana opcja z menu nie została jeszcze zaimplementowana, usuń przycisk"""
             self.button.grid_forget()
 
 
@@ -88,7 +90,7 @@ class Filtracja:
         plt.figure(figsize=(6.4 * 5, 4.8 * 5), constrained_layout=False)
 
         img = cv2.imread(self.imaddr, 0)
-        # plt.subplot(161), plt.imshow(img, "gray"), plt.title("Original Image")
+        plt.subplot(151), plt.imshow(img, "gray"), plt.title("Original Image")
 
         original = np.fft.fft2(img)
         # plt.subplot(162), plt.imshow(np.log(1 + np.abs(original)), "gray"), plt.title("Spectrum")
@@ -97,17 +99,17 @@ class Filtracja:
         # plt.subplot(163), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Centered Spectrum")
 
         HighPass = self.idealFilterHP(50, img.shape)
-        plt.subplot(151), plt.imshow(np.abs(HighPass), "gray"), plt.title("High Pass Filter")
+        plt.subplot(152), plt.imshow(np.abs(HighPass), "gray"), plt.title("High Pass Filter")
 
         HighPassCenter = center * self.idealFilterHP(50, img.shape)
-        plt.subplot(152), plt.imshow(np.log(1 + np.abs(HighPassCenter)), "gray"), plt.title(
+        plt.subplot(153), plt.imshow(np.log(1 + np.abs(HighPassCenter)), "gray"), plt.title(
             "Centered Spectrum multiply High Pass Filter")
 
         HighPass = np.fft.ifftshift(HighPassCenter)
-        plt.subplot(153), plt.imshow(np.log(1 + np.abs(HighPass)), "gray"), plt.title("Decentralize")
+        plt.subplot(154), plt.imshow(np.log(1 + np.abs(HighPass)), "gray"), plt.title("Decentralize")
 
         inverse_HighPass = np.fft.ifft2(HighPass)
-        plt.subplot(154), plt.imshow(np.abs(inverse_HighPass), "gray"), plt.title("Processed Image")
+        plt.subplot(155), plt.imshow(np.abs(inverse_HighPass), "gray"), plt.title("Processed Image")
 
         plt.show()
 
