@@ -44,9 +44,14 @@ class Filtracja:
 
         if option == "Dolnoprzepustowa":
             print("HMM")
-            self.button.grid_forget()
-            self.button = Button(root, text="check", command=self.plotLP)
-            self.button.grid(row=0, column=1)
+            self.button.grid_forget()                                       #usuwa istniejący przycisk
+            self.button = Button(root, text="check", command=self.plotLP)   #tworzy nowy przycisk
+            self.button.grid(row=0, column=1)                               #ustawia nowy przycisk
+        if option == "Górnoprzepustowa":
+            print("HMM2")
+            self.button.grid_forget()                                       #usuwa istniejący przycisk
+            self.button = Button(root, text="check", command=self.plotHP)   #tworzy nowy przycisk
+            self.button.grid(row=0, column=1)                               #ustawia nowy przycisk
         else:
             self.button.grid_forget()
 
@@ -79,7 +84,32 @@ class Filtracja:
 
         plt.show()
 
-    # def plotHP(self):
+    def plotHP(self):
+        plt.figure(figsize=(6.4 * 5, 4.8 * 5), constrained_layout=False)
+
+        img = cv2.imread(self.imaddr, 0)
+        # plt.subplot(161), plt.imshow(img, "gray"), plt.title("Original Image")
+
+        original = np.fft.fft2(img)
+        # plt.subplot(162), plt.imshow(np.log(1 + np.abs(original)), "gray"), plt.title("Spectrum")
+
+        center = np.fft.fftshift(original)
+        # plt.subplot(163), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Centered Spectrum")
+
+        HighPass = self.idealFilterHP(50, img.shape)
+        plt.subplot(151), plt.imshow(np.abs(HighPass), "gray"), plt.title("High Pass Filter")
+
+        HighPassCenter = center * self.idealFilterHP(50, img.shape)
+        plt.subplot(152), plt.imshow(np.log(1 + np.abs(HighPassCenter)), "gray"), plt.title(
+            "Centered Spectrum multiply High Pass Filter")
+
+        HighPass = np.fft.ifftshift(HighPassCenter)
+        plt.subplot(153), plt.imshow(np.log(1 + np.abs(HighPass)), "gray"), plt.title("Decentralize")
+
+        inverse_HighPass = np.fft.ifft2(HighPass)
+        plt.subplot(154), plt.imshow(np.abs(inverse_HighPass), "gray"), plt.title("Processed Image")
+
+        plt.show()
 
     def distance(self, point1, point2):
         return math.sqrt((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2)
