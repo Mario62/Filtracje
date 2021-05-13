@@ -21,6 +21,12 @@ class Filtracja:
 
         self.button2 = Button(window, text="Open file", command=self.select_file)
         self.dropLab = Label(root, text="Wybór maski")
+
+        self.slider1 = Scale(window, from_=0, to=100, tickinterval=25, length=200, orient=HORIZONTAL)
+        self.slider1.set(50)
+        self.button3 = Button(window, text="Save", command=self.show_values)  #
+
+
         self.drop2Lab = Label(root, text="Wybór kształtu")
 
         self.clicked = StringVar()
@@ -34,12 +40,19 @@ class Filtracja:
         self.drop2 = OptionMenu(window, self.clicked2, "Okrągły", "Kwadratowy")
         self.dropLab.grid(row=1, column=0)
         self.drop.grid(row=1, column=1)
-        self.drop2Lab.grid(row=2, column=0)
-        self.drop2.grid(row=2, column=1)
+        self.slider1.grid(row=3, column=0)
+        self.drop2Lab.grid(row=5, column=0)
+        self.drop2.grid(row=5, column=1)
+
+
         # self.box.pack()
+        self.button3.grid(row=4, column=0)
         self.button2.grid(row=0, column=0)
         self.button.grid(row=0, column=1)
         # self.button3 = Button(root, text="Show selection", command=self.show).grid(row=3, column=0)
+
+    def show_values(self):
+        self.zmienna = self.slider1.get()
 
     def switch(self, value):
         """Metoda służy do przypisywania metod z odpowiednimi maskami do odpowiadających im wyborów z OptionMenu"""
@@ -136,7 +149,7 @@ class Filtracja:
     def plotHP(self):
         fig = plt.figure(figsize=(6.4 * 5, 4.8 * 5), constrained_layout=False)
         fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
-        
+
         img = cv2.imread(self.imaddr, 0)
         plt.subplot(151), plt.imshow(img, "gray"), plt.title("Original Image")
 
@@ -146,10 +159,10 @@ class Filtracja:
         center = np.fft.fftshift(original)
         # plt.subplot(163), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Centered Spectrum")
 
-        HighPass = self.idealFilterHP(50, img.shape)
+        HighPass = self.idealFilterHP(zmienna, img.shape)
         plt.subplot(152), plt.imshow(np.abs(HighPass), "gray"), plt.title("High Pass Filter")
 
-        HighPassCenter = center * self.idealFilterHP(50, img.shape)
+        HighPassCenter = center * self.idealFilterHP(zmienna, img.shape)
         plt.subplot(153), plt.imshow(np.log(1 + np.abs(HighPassCenter)), "gray"), plt.title(
             "Centered Spectrum multiply High Pass Filter")
 
@@ -199,10 +212,10 @@ class Filtracja:
         center = np.fft.fftshift(original)
         # plt.subplot(163), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Centered Spectrum")
 
-        HighPass = self.squareHP(50, img.shape)
+        HighPass = self.squareHP(self.zmienna, img.shape)
         plt.subplot(152), plt.imshow(np.abs(HighPass), "gray"), plt.title("High Pass Filter")
 
-        HighPassCenter = center * self.squareHP(50, img.shape)
+        HighPassCenter = center * self.squareHP(self.zmienna, img.shape)
         plt.subplot(153), plt.imshow(np.log(1 + np.abs(HighPassCenter)), "gray"), plt.title(
             "Centered Spectrum multiply High Pass Filter")
 
@@ -217,7 +230,7 @@ class Filtracja:
     def plotGaussLP(self):
         fig = plt.figure(figsize=(6.4 * 5, 4.8 * 5), constrained_layout=False)
         fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
-        
+
         img = cv2.imread(self.imaddr, 0)
         plt.subplot(151), plt.imshow(img, "gray"), plt.title("Original Image")
 
@@ -245,7 +258,7 @@ class Filtracja:
     def plotGaussHP(self):
         fig = plt.figure(figsize=(6.4 * 5, 4.8 * 5), constrained_layout=False)
         fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
-        
+
         img = cv2.imread(self.imaddr, 0)
         plt.subplot(151), plt.imshow(img, "gray"), plt.title("Original Image")
 
@@ -273,7 +286,7 @@ class Filtracja:
     def plotButterLP(self):
         fig = plt.figure(figsize=(6.4 * 5, 4.8 * 5), constrained_layout=False)
         fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
-        
+
         img = cv2.imread(self.imaddr, 0)
         plt.subplot(151), plt.imshow(img, "gray"), plt.title("Original Image")
 
@@ -301,7 +314,7 @@ class Filtracja:
     def plotButterHP(self):
         fig = plt.figure(figsize=(6.4 * 5, 4.8 * 5), constrained_layout=False)
         fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
-        
+
         img = cv2.imread(self.imaddr, 0)
         plt.subplot(151), plt.imshow(img, "gray"), plt.title("Original Image")
 
