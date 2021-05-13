@@ -52,7 +52,7 @@ class Filtracja:
         # self.button3 = Button(root, text="Show selection", command=self.show).grid(row=3, column=0)
 
     def show_values(self):
-        self.zmienna = self.slider1.get()
+        self.rozmiarm = self.slider1.get()
 
     def switch(self, value):
         """Metoda służy do przypisywania metod z odpowiednimi maskami do odpowiadających im wyborów z OptionMenu"""
@@ -134,7 +134,7 @@ class Filtracja:
         center = np.fft.fftshift(original)
         plt.subplot(163), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Spektrum w centrum")
 
-        LowPassCenter = center * self.idealFilterLP(self.zmienna, img.shape)
+        LowPassCenter = center * self.idealFilterLP(self.rozmiarm, img.shape)
         plt.subplot(164), plt.imshow(np.log(1 + np.abs(LowPassCenter)), "gray"), plt.title(
             "Centrum * filtr dolnoprzepustowy")
 
@@ -159,10 +159,10 @@ class Filtracja:
         center = np.fft.fftshift(original)
         # plt.subplot(163), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Centered Spectrum")
 
-        HighPass = self.idealFilterHP(self.zmienna, img.shape)
+        HighPass = self.idealFilterHP(self.rozmiarm, img.shape)
         plt.subplot(152), plt.imshow(np.abs(HighPass), "gray"), plt.title("High Pass Filter")
 
-        HighPassCenter = center * self.idealFilterHP(self.zmienna, img.shape)
+        HighPassCenter = center * self.idealFilterHP(self.rozmiarm, img.shape)
         plt.subplot(153), plt.imshow(np.log(1 + np.abs(HighPassCenter)), "gray"), plt.title(
             "Centered Spectrum multiply High Pass Filter")
 
@@ -212,10 +212,10 @@ class Filtracja:
         center = np.fft.fftshift(original)
         # plt.subplot(163), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Centered Spectrum")
 
-        HighPass = self.squareHP(self.zmienna, img.shape)
+        HighPass = self.squareHP(self.rozmiarm, img.shape)
         plt.subplot(152), plt.imshow(np.abs(HighPass), "gray"), plt.title("High Pass Filter")
 
-        HighPassCenter = center * self.squareHP(self.zmienna, img.shape)
+        HighPassCenter = center * self.squareHP(self.rozmiarm, img.shape)
         plt.subplot(153), plt.imshow(np.log(1 + np.abs(HighPassCenter)), "gray"), plt.title(
             "Centered Spectrum multiply High Pass Filter")
 
