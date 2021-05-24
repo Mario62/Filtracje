@@ -124,10 +124,13 @@ class Filtracja:
         plt.subplot(161), plt.imshow(img, "gray"), plt.title("Oryginalny obraz")
 
         original = np.fft.fft2(img)
-        plt.subplot(162), plt.imshow(np.log(1 + np.abs(original)), "gray"), plt.title("Spektrum")
+        # plt.subplot(162), plt.imshow(np.log(1 + np.abs(original)), "gray"), plt.title("Spektrum")
 
         center = np.fft.fftshift(original)
-        plt.subplot(163), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Spektrum w centrum")
+        plt.subplot(162), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Spektrum w centrum")
+
+        angle = np.angle(center)
+        plt.subplot(163), plt.imshow(np.log(1 + np.abs(angle)), "gray"), plt.title("Faza")
 
         LowPassCenter = center * self.idealFilterLP(50, img.shape)
         plt.subplot(164), plt.imshow(np.log(1 + np.abs(LowPassCenter)), "gray"), plt.title(
