@@ -4,11 +4,15 @@ from tkinter import *
 from tkinter.messagebox import showinfo
 
 from tkinter import filedialog as fd
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg,
+                                               NavigationToolbar2Tk)
 
 import math
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+
 from PIL import ImageTk, Image
 
 
@@ -146,32 +150,43 @@ class Filtracja:
         myLabel = Label(root, text=self.clicked.get()).grid(row=3, column=1)
 
     def plotLP(self):
-        fig = plt.figure(figsize=(6.4 * 5, 4.8 * 5), constrained_layout=False)
-        fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
+        fig = plt.figure(figsize=(7,7), dpi=200)
+        # fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
 
         img = cv2.imread(self.imaddr, 0)
-        plt.subplot(161), plt.imshow(img, "gray"), plt.title("Oryginalny obraz")
+        plt.subplot2grid((4, 5), (0, 0)), plt.imshow(img, "gray"), plt.title("Oryg. obraz")
+        # plot1 = fig.add_subplot(161)
+        # plot1.imshow(img, "gray")
 
         original = np.fft.fft2(img)
         # plt.subplot(162), plt.imshow(np.log(1 + np.abs(original)), "gray"), plt.title("Spektrum")
 
         center = np.fft.fftshift(original)
-        plt.subplot(162), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Spektrum w centrum")
+        plt.subplot2grid((4, 5), (0, 1), colspan=1), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Spektrum")
 
         angle = np.angle(center)
-        plt.subplot(163), plt.imshow(np.log(1 + np.abs(angle)), "gray"), plt.title("Faza")
+        plt.subplot2grid((4, 5), (0, 2), colspan=1), plt.imshow(np.log(1 + np.abs(angle)), "gray"), plt.title("Faza")
 
         LowPassCenter = center * self.idealFilterLP(self.rozmiarm, img.shape)
-        plt.subplot(164), plt.imshow(np.log(1 + np.abs(LowPassCenter)), "gray"), plt.title(
-            "Filtr dolnoprzepustowy")
+        plt.subplot2grid((4, 5), (0, 3), colspan=1), plt.imshow(np.log(1 + np.abs(LowPassCenter)), "gray"), plt.title(
+            "Filtr")
 
         LowPass = np.fft.ifftshift(LowPassCenter)
         # plt.subplot(155), plt.imshow(np.log(1 + np.abs(LowPass)), "gray"), plt.title("Decentralizacja")
 
         inverse_LowPass = np.fft.ifft2(LowPass)
-        plt.subplot(165), plt.imshow(np.abs(inverse_LowPass), "gray"), plt.title("Przetworzony obraz")
+        plt.subplot2grid((4, 5), (1, 0), colspan=1), plt.imshow(np.abs(inverse_LowPass), "gray"), plt.title("Obraz wynik.")
 
-        plt.show()
+        plt.tight_layout()
+
+        canvas = FigureCanvasTkAgg(fig,
+                                   master=root)
+        canvas.draw()
+
+        # placing the canvas on the Tkinter window
+        canvas.get_tk_widget().grid(row=5, column=1)
+
+
 
     def plotHP(self):
         fig = plt.figure(figsize=(6.4 * 5, 4.8 * 5), constrained_layout=False)
