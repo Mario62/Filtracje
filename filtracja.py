@@ -129,12 +129,12 @@ class Filtracja:
         elif option == "Środkowo-p pierścień LP":
             print("ŚrodekPierścieńLP")
             self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="CHECK/REZULTAT", command=self.plotMPCirLP(), font="Calibri 20")  # tworzy nowy przycisk
+            self.button = Button(root, text="CHECK/REZULTAT", command=self.plotMPCirLP, font="Calibri 20")  # tworzy nowy przycisk
             self.button.grid(row=0, column=1)  # ustawia nowy przycisk
         elif option == "Środkowo-p pierścień HP":
             print("ŚrodekPierścieńHP")
             self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="CHECK/REZULTAT", command=self.plotMPCirHP(), font="Calibri 20")  # tworzy nowy przycisk
+            self.button = Button(root, text="CHECK/REZULTAT", command=self.plotMPCirHP, font="Calibri 20")  # tworzy nowy przycisk
             self.button.grid(row=0, column=1)  # ustawia nowy przycisk
         else:
             """Jeżeli wybrana opcja z menu nie została jeszcze zaimplementowana, usuń przycisk"""
