@@ -1,7 +1,10 @@
+# TODO Znaleźć sposób na poprawne zastosowanie i odczytywanie textfield
+
 from tkinter import *
 from tkinter.messagebox import showinfo
 
 from tkinter import filedialog as fd
+
 import math
 import cv2
 import numpy as np
@@ -12,44 +15,55 @@ from PIL import ImageTk, Image
 class Filtracja:
 
     def __init__(self, window, imaddr):
+
+
         """Metoda init w tym wypadku służy do budowania całego GUI"""
-        self.button = Button(window, text="check")
+        self.rozmiarm = 50
+        # self.drop2 = None
+        self.button = Button(window, text="CHECK/REZULTAT", font="Calibri 20")
         self.window = window
         # self.filename = ""
         self.imaddr = imaddr
         # self.box = Entry(window)
 
-        self.button2 = Button(window, text="Open file", command=self.select_file)
-        self.dropLab = Label(root, text="Wybór maski")
+        self.button2 = Button(window, text="OTWÓRZ PLIK", font="Calibri 20", command=self.select_file)
+        self.dropLab = Label(root, font="Calibri 20", text="WYBÓR MASKI")
 
-        self.slider1 = Scale(window, from_=0, to=100, tickinterval=25, length=200, orient=HORIZONTAL)
+        self.slider1 = Scale(window, from_=0, to=100, tickinterval=25, length=300, orient=HORIZONTAL, font="Calibri 16")
         self.slider1.set(50)
-        self.button3 = Button(window, text="Save", command=self.show_values)  #
+        self.button3 = Button(window, text="ZAPISZ SLIDER", font="Calibri 20", command=self.show_values, )  #
 
 
-        self.drop2Lab = Label(root, text="Wybór kształtu")
+        # self.drop2Lab = Label(root, text="WYBÓR KRZTAŁTU", font="Calibri 20")
 
         self.clicked = StringVar()
         self.clicked2 = StringVar()
-        self.options = ("Dolnoprzepustowa Okrągła", "Górnoprzepustowa Okrągła","Dolnoprzepustowa Kwadratowa",
+        self.options = ("Dolnoprzepustowa Okrągła", "Górnoprzepustowa Okrągła", "Dolnoprzepustowa Kwadratowa",
                         "Górnoprzepustowa Kwadratowa", "Gaussian LP",
                         "Gaussian HP", "Butterworth LP", "Butterworth HP",
                         "Środkowo-p kwadrat LP", "Środkowo-p kwadrat HP", "Środkowo-p pierścień LP",
                         "Środkowo-p pierścień HP",)
         self.drop = OptionMenu(window, self.clicked, *self.options, command=self.switch)
-        self.drop2 = OptionMenu(window, self.clicked2, "Okrągły", "Kwadratowy")
+        # self.drop2 = OptionMenu(window, self.clicked2, "Okrągły", "Kwadratowy")
         self.dropLab.grid(row=1, column=0)
         self.drop.grid(row=1, column=1)
-        self.slider1.grid(row=3, column=0)
-        self.drop2Lab.grid(row=5, column=0)
-        self.drop2.grid(row=5, column=1)
 
+        self.slider1.grid(row=3, column=0)
+        # self.drop2Lab.grid(row=5, column=0)
+        # self.drop2.grid(row=5, column=1)
+        self.drop.config(font="Calibri 20")
+        # self.drop2.config(font="Calibri 20")
+        
+        # self.drop2Lab.grid(row=2, column=0)
+        # self.drop2.grid(row=2, column=1)
 
         # self.box.pack()
         self.button3.grid(row=4, column=0)
         self.button2.grid(row=0, column=0)
         self.button.grid(row=0, column=1)
         # self.button3 = Button(root, text="Show selection", command=self.show).grid(row=3, column=0)
+        self.n = 0
+        self.textfield = None
 
     def show_values(self):
         self.rozmiarm = self.slider1.get()
@@ -61,62 +75,72 @@ class Filtracja:
         if option == "Dolnoprzepustowa Okrągła":
             print("LP KOLO")
             self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="check", command=self.plotLP)  # tworzy nowy przycisk
+            self.button = Button(root, text="CHECK/REZULTAT", command=self.plotLP, font="Calibri 20")  # tworzy nowy przycisk
             self.button.grid(row=0, column=1)  # ustawia nowy przycisk
         elif option == "Górnoprzepustowa Okrągła":
             print("HP KOLO")
             self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="check", command=self.plotHP)  # tworzy nowy przycisk
+            self.button = Button(root, text="CHECK/REZULTAT", command=self.plotHP, font="Calibri 20")  # tworzy nowy przycisk
             self.button.grid(row=0, column=1)  # ustawia nowy przycisk
         elif option == "Dolnoprzepustowa Kwadratowa":
             print("LP KWADRAT")
             self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="check", command=self.plotLPS)  # tworzy nowy przycisk
+            self.button = Button(root, text="CHECK/REZULTAT", command=self.plotLPS, font="Calibri 20")  # tworzy nowy przycisk
             self.button.grid(row=0, column=1)  # ustawia nowy przycisk
         elif option == "Górnoprzepustowa Kwadratowa":
             print("HP KOLO")
             self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="check", command=self.plotHPS)  # tworzy nowy przycisk
+            self.button = Button(root, text="CHECK/REZULTAT", command=self.plotHPS, font="Calibri 20")  # tworzy nowy przycisk
             self.button.grid(row=0, column=1)  # ustawia nowy przycisk
         elif option == "Gaussian LP":
-            print("HMM2")
+            print("GAUSS LP")
             self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="check", command=self.plotGaussLP)  # tworzy nowy przycisk
+            self.button = Button(root, text="CHECK/REZULTAT", command=self.plotGaussLP, font="Calibri 20")  # tworzy nowy przycisk
             self.button.grid(row=0, column=1)  # ustawia nowy przycisk
         elif option == "Gaussian HP":
-            print("HMM2")
+            print("GAUSS HP")
             self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="check", command=self.plotGaussHP)  # tworzy nowy przycisk
+            self.button = Button(root, text="CHECK/REZULTAT", command=self.plotGaussHP, font="Calibri 20")  # tworzy nowy przycisk
             self.button.grid(row=0, column=1)  # ustawia nowy przycisk
         elif option == "Butterworth LP":
-            print("HMM2")
+            print("BUTTER LP")
+            # Label(self.window, text="Podaj n=").grid(row=2, column=0)
+            # self.textfield = Text(self.window, height=1, width=3)
+            # self.textfield.grid(row=2, column=1, sticky=W)
+            # self.n = self.textfield.get("1.0",'end-1c')
             self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="check", command=self.plotButterLP)  # tworzy nowy przycisk
+            self.button = Button(root, text="CHECK/REZULTAT", command=self.plotButterLP, font="Calibri 20")  # tworzy nowy przycisk
             self.button.grid(row=0, column=1)  # ustawia nowy przycisk
         elif option == "Butterworth HP":
-            print("HMM2")
+            print("BUTTER HP")
             self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="check", command=self.plotButterHP)  # tworzy nowy przycisk
-            self.button.grid(row=0, column=1)  # ustawia nowy przycisk
-        elif option == "Środkowo-p pierścień LP":
-            self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="check", command=self.plotMPCirLP())  # tworzy nowy przycisk
-            self.button.grid(row=0, column=1)  # ustawia nowy przycisk
-        elif option == "Środkowo-p pierścień HP":
-            self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="check", command=self.plotMPCirHP())  # tworzy nowy przycisk
+            self.button = Button(root, text="CHECK/REZULTAT", command=self.plotButterHP, font="Calibri 20")  # tworzy nowy przycisk
             self.button.grid(row=0, column=1)  # ustawia nowy przycisk
         elif option == "Środkowo-p kwadrat LP":
+            print("ŚrodekKwadratLP")
             self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="check", command=self.plotMPSqrLP)  # tworzy nowy przycisk
+            self.button = Button(root, text="CHECK/REZULTAT", command=self.plotMPSqrLP, font="Calibri 20")  # tworzy nowy przycisk
             self.button.grid(row=0, column=1)  # ustawia nowy przycisk
         elif option == "Środkowo-p kwadrat HP":
+            print("ŚrodekkwadratHP")
             self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="check", command=self.plotMPSqrHP)  # tworzy nowy przycisk
+            self.button = Button(root, text="CHECK/REZULTAT", command=self.plotMPSqrHP, font="Calibri 20")  # tworzy nowy przycisk
+            self.button.grid(row=0, column=1)  # ustawia nowy przycisk
+        elif option == "Środkowo-p pierścień LP":
+            print("ŚrodekPierścieńLP")
+            self.button.grid_forget()  # usuwa istniejący przycisk
+            self.button = Button(root, text="CHECK/REZULTAT", command=self.plotMPCirLP, font="Calibri 20")  # tworzy nowy przycisk
+            self.button.grid(row=0, column=1)  # ustawia nowy przycisk
+        elif option == "Środkowo-p pierścień HP":
+            print("ŚrodekPierścieńHP")
+            self.button.grid_forget()  # usuwa istniejący przycisk
+            self.button = Button(root, text="CHECK/REZULTAT", command=self.plotMPCirHP, font="Calibri 20")  # tworzy nowy przycisk
             self.button.grid(row=0, column=1)  # ustawia nowy przycisk
         else:
             """Jeżeli wybrana opcja z menu nie została jeszcze zaimplementowana, usuń przycisk"""
-            self.button.grid_forget()
+            print("Błąd w option")
+            # self.button.grid_forget()
+
 
     def show(self):
         myLabel = Label(root, text=self.clicked.get()).grid(row=3, column=1)
@@ -129,20 +153,23 @@ class Filtracja:
         plt.subplot(161), plt.imshow(img, "gray"), plt.title("Oryginalny obraz")
 
         original = np.fft.fft2(img)
-        plt.subplot(162), plt.imshow(np.log(1 + np.abs(original)), "gray"), plt.title("Spektrum")
+        # plt.subplot(162), plt.imshow(np.log(1 + np.abs(original)), "gray"), plt.title("Spektrum")
 
         center = np.fft.fftshift(original)
-        plt.subplot(163), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Spektrum w centrum")
+        plt.subplot(162), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Spektrum w centrum")
+
+        angle = np.angle(center)
+        plt.subplot(163), plt.imshow(np.log(1 + np.abs(angle)), "gray"), plt.title("Faza")
 
         LowPassCenter = center * self.idealFilterLP(self.rozmiarm, img.shape)
         plt.subplot(164), plt.imshow(np.log(1 + np.abs(LowPassCenter)), "gray"), plt.title(
-            "Centrum * filtr dolnoprzepustowy")
+            "Filtr dolnoprzepustowy")
 
         LowPass = np.fft.ifftshift(LowPassCenter)
-        plt.subplot(165), plt.imshow(np.log(1 + np.abs(LowPass)), "gray"), plt.title("Decentralizacja")
+        # plt.subplot(155), plt.imshow(np.log(1 + np.abs(LowPass)), "gray"), plt.title("Decentralizacja")
 
         inverse_LowPass = np.fft.ifft2(LowPass)
-        plt.subplot(166), plt.imshow(np.abs(inverse_LowPass), "gray"), plt.title("Processed Image")
+        plt.subplot(165), plt.imshow(np.abs(inverse_LowPass), "gray"), plt.title("Przetworzony obraz")
 
         plt.show()
 
@@ -151,26 +178,29 @@ class Filtracja:
         fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
 
         img = cv2.imread(self.imaddr, 0)
-        plt.subplot(151), plt.imshow(img, "gray"), plt.title("Original Image")
+        plt.subplot(151), plt.imshow(img, "gray"), plt.title("Oryginalny obraz")
 
         original = np.fft.fft2(img)
         # plt.subplot(162), plt.imshow(np.log(1 + np.abs(original)), "gray"), plt.title("Spectrum")
 
         center = np.fft.fftshift(original)
-        # plt.subplot(163), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Centered Spectrum")
+        plt.subplot(152), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Spektrum w centrum")
 
-        HighPass = self.idealFilterHP(self.rozmiarm, img.shape)
-        plt.subplot(152), plt.imshow(np.abs(HighPass), "gray"), plt.title("High Pass Filter")
+        angle = np.angle(center)
+        plt.subplot(153), plt.imshow(np.log(1 + np.abs(angle)), "gray"), plt.title("Faza")
+
+        # HighPass = self.idealFilterHP(self.rozmiarm, img.shape)
+        # plt.subplot(154), plt.imshow(np.abs(HighPass), "gray"), plt.title("Filtr górnoprzepustowy")
 
         HighPassCenter = center * self.idealFilterHP(self.rozmiarm, img.shape)
-        plt.subplot(153), plt.imshow(np.log(1 + np.abs(HighPassCenter)), "gray"), plt.title(
-            "Centered Spectrum multiply High Pass Filter")
+        plt.subplot(154), plt.imshow(np.log(1 + np.abs(HighPassCenter)), "gray"), plt.title(
+            "Filtr górnoprzepustowy")
 
         HighPass = np.fft.ifftshift(HighPassCenter)
-        plt.subplot(154), plt.imshow(np.log(1 + np.abs(HighPass)), "gray"), plt.title("Decentralize")
+        # plt.subplot(155), plt.imshow(np.log(1 + np.abs(HighPass)), "gray"), plt.title("Decentralize")
 
         inverse_HighPass = np.fft.ifft2(HighPass)
-        plt.subplot(155), plt.imshow(np.abs(inverse_HighPass), "gray"), plt.title("Processed Image")
+        plt.subplot(155), plt.imshow(np.abs(inverse_HighPass), "gray"), plt.title("Przetworzony obraz")
 
         plt.show()
 
@@ -179,23 +209,26 @@ class Filtracja:
         fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
 
         img = cv2.imread(self.imaddr, 0)
-        plt.subplot(161), plt.imshow(img, "gray"), plt.title("Oryginalny obraz")
+        plt.subplot(151), plt.imshow(img, "gray"), plt.title("Oryginalny obraz")
 
         original = np.fft.fft2(img)
-        plt.subplot(162), plt.imshow(np.log(1 + np.abs(original)), "gray"), plt.title("Spektrum")
+        # plt.subplot(162), plt.imshow(np.log(1 + np.abs(original)), "gray"), plt.title("Spektrum")
 
         center = np.fft.fftshift(original)
-        plt.subplot(163), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Spektrum w centrum")
+        plt.subplot(152), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Spektrum w centrum")
 
-        LowPassCenter = center * self.squareLP(50, img.shape)
-        plt.subplot(164), plt.imshow(np.log(1 + np.abs(LowPassCenter)), "gray"), plt.title(
-            "Centrum * filtr dolnoprzepustowy")
+        angle = np.angle(center)
+        plt.subplot(153), plt.imshow(np.log(1 + np.abs(angle)), "gray"), plt.title("Faza")
+
+        LowPassCenter = center * self.squareLP(self.rozmiarm, img.shape)
+        plt.subplot(154), plt.imshow(np.log(1 + np.abs(LowPassCenter)), "gray"), plt.title(
+            "Filtr dolnoprzepustowy")
 
         LowPass = np.fft.ifftshift(LowPassCenter)
-        plt.subplot(165), plt.imshow(np.log(1 + np.abs(LowPass)), "gray"), plt.title("Decentralizacja")
+        # plt.subplot(165), plt.imshow(np.log(1 + np.abs(LowPass)), "gray"), plt.title("Decentralizacja")
 
         inverse_LowPass = np.fft.ifft2(LowPass)
-        plt.subplot(166), plt.imshow(np.abs(inverse_LowPass), "gray"), plt.title("Processed Image")
+        plt.subplot(155), plt.imshow(np.abs(inverse_LowPass), "gray"), plt.title("Przetworzony obraz")
 
         plt.show()
 
@@ -204,26 +237,29 @@ class Filtracja:
         fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
 
         img = cv2.imread(self.imaddr, 0)
-        plt.subplot(151), plt.imshow(img, "gray"), plt.title("Original Image")
+        plt.subplot(151), plt.imshow(img, "gray"), plt.title("Oryginalny obraz")
 
         original = np.fft.fft2(img)
         # plt.subplot(162), plt.imshow(np.log(1 + np.abs(original)), "gray"), plt.title("Spectrum")
 
         center = np.fft.fftshift(original)
-        # plt.subplot(163), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Centered Spectrum")
+        plt.subplot(152), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Spektrum w centrum")
 
-        HighPass = self.squareHP(self.rozmiarm, img.shape)
-        plt.subplot(152), plt.imshow(np.abs(HighPass), "gray"), plt.title("High Pass Filter")
+        angle = np.angle(center)
+        plt.subplot(153), plt.imshow(np.log(1 + np.abs(angle)), "gray"), plt.title("Faza")
+        
+        # HighPass = self.squareHP(self.rozmiarm, img.shape)
+        # plt.subplot(154), plt.imshow(np.abs(HighPass), "gray"), plt.title("High Pass Filter")
 
         HighPassCenter = center * self.squareHP(self.rozmiarm, img.shape)
-        plt.subplot(153), plt.imshow(np.log(1 + np.abs(HighPassCenter)), "gray"), plt.title(
-            "Centered Spectrum multiply High Pass Filter")
+        plt.subplot(154), plt.imshow(np.log(1 + np.abs(HighPassCenter)), "gray"), plt.title(
+            "Filtr górnoprzepustowy")
 
         HighPass = np.fft.ifftshift(HighPassCenter)
-        plt.subplot(154), plt.imshow(np.log(1 + np.abs(HighPass)), "gray"), plt.title("Decentralize")
+        # plt.subplot(154), plt.imshow(np.log(1 + np.abs(HighPass)), "gray"), plt.title("Decentralize")
 
         inverse_HighPass = np.fft.ifft2(HighPass)
-        plt.subplot(155), plt.imshow(np.abs(inverse_HighPass), "gray"), plt.title("Processed Image")
+        plt.subplot(155), plt.imshow(np.abs(inverse_HighPass), "gray"), plt.title("Przetworzony obraz")
 
         plt.show()
 
@@ -232,26 +268,29 @@ class Filtracja:
         fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
 
         img = cv2.imread(self.imaddr, 0)
-        plt.subplot(151), plt.imshow(img, "gray"), plt.title("Original Image")
+        plt.subplot(151), plt.imshow(img, "gray"), plt.title("Oryginalny obraz")
 
         original = np.fft.fft2(img)
         # plt.subplot(162), plt.imshow(np.log(1 + np.abs(original)), "gray"), plt.title("Spectrum")
 
         center = np.fft.fftshift(original)
-        # plt.subplot(163), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Centered Spectrum")
+        plt.subplot(152), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Spektrum w centrum")
 
-        LowPass = self.gaussianLP(50, img.shape)
-        plt.subplot(152), plt.imshow(np.abs(LowPass), "gray"), plt.title("Low Pass Filter")
+        angle = np.angle(center)
+        plt.subplot(153), plt.imshow(np.log(1 + np.abs(angle)), "gray"), plt.title("Faza")
 
-        LowPassCenter = center * self.gaussianLP(50, img.shape)
-        plt.subplot(153), plt.imshow(np.log(1 + np.abs(LowPassCenter)), "gray"), plt.title(
-            "Centered Spectrum multiply Low Pass Filter")
+        # LowPass = self.gaussianLP(50, img.shape)
+        # plt.subplot(154), plt.imshow(np.abs(LowPass), "gray"), plt.title("Low Pass Filter")
+
+        LowPassCenter = center * self.gaussianLP(self.rozmiarm, img.shape)
+        plt.subplot(154), plt.imshow(np.log(1 + np.abs(LowPassCenter)), "gray"), plt.title(
+            "Filtr dolnoprzepustowy")
 
         LowPass = np.fft.ifftshift(LowPassCenter)
-        plt.subplot(154), plt.imshow(np.log(1 + np.abs(LowPass)), "gray"), plt.title("Decentralize")
+        # plt.subplot(154), plt.imshow(np.log(1 + np.abs(LowPass)), "gray"), plt.title("Decentralize")
 
         inverse_LowPass = np.fft.ifft2(LowPass)
-        plt.subplot(155), plt.imshow(np.abs(inverse_LowPass), "gray"), plt.title("Processed Image")
+        plt.subplot(155), plt.imshow(np.abs(inverse_LowPass), "gray"), plt.title("Przetworzony obraz")
 
         plt.show()
 
@@ -260,54 +299,62 @@ class Filtracja:
         fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
 
         img = cv2.imread(self.imaddr, 0)
-        plt.subplot(151), plt.imshow(img, "gray"), plt.title("Original Image")
+        plt.subplot(151), plt.imshow(img, "gray"), plt.title("Oryginalny obraz")
 
         original = np.fft.fft2(img)
         # plt.subplot(162), plt.imshow(np.log(1 + np.abs(original)), "gray"), plt.title("Spectrum")
 
         center = np.fft.fftshift(original)
-        # plt.subplot(163), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Centered Spectrum")
+        plt.subplot(152), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Spektrum w centrum")
 
-        HighPass = self.gaussianHP(50, img.shape)
-        plt.subplot(152), plt.imshow(HighPass, "gray"), plt.title("Butterworth High Pass Filter (n=20)")
+        angle = np.angle(center)
+        plt.subplot(153), plt.imshow(np.log(1 + np.abs(angle)), "gray"), plt.title("Faza")
 
-        HighPassCenter = center * self.gaussianHP(50, img.shape)
-        plt.subplot(153), plt.imshow(np.log(1 + np.abs(HighPassCenter)), "gray"), plt.title(
-            "Centered Spectrum multiply High Pass Filter")
+        # HighPass = self.gaussianHP(50, img.shape)
+        # plt.subplot(153), plt.imshow(HighPass, "gray"), plt.title("Butterworth High Pass Filter (n=20)")
+
+        HighPassCenter = center * self.gaussianHP(self.rozmiarm, img.shape)
+        plt.subplot(154), plt.imshow(np.log(1 + np.abs(HighPassCenter)), "gray"), plt.title(
+            "Filtr góroprzepustowy")
 
         HighPass = np.fft.ifftshift(HighPassCenter)
-        plt.subplot(154), plt.imshow(np.log(1 + np.abs(HighPass)), "gray"), plt.title("Decentralize")
+        # plt.subplot(154), plt.imshow(np.log(1 + np.abs(HighPass)), "gray"), plt.title("Decentralize")
 
         inverse_HighPass = np.fft.ifft2(HighPass)
-        plt.subplot(155), plt.imshow(np.abs(inverse_HighPass), "gray"), plt.title("Processed Image")
+        plt.subplot(155), plt.imshow(np.abs(inverse_HighPass), "gray"), plt.title("Przetworzony obraz")
 
         plt.show()
 
     def plotButterLP(self):
+        # print("DZIAD: ", self.n)
+        # # self.n = self.textfield.get(1)
         fig = plt.figure(figsize=(6.4 * 5, 4.8 * 5), constrained_layout=False)
         fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
 
         img = cv2.imread(self.imaddr, 0)
-        plt.subplot(151), plt.imshow(img, "gray"), plt.title("Original Image")
+        plt.subplot(151), plt.imshow(img, "gray"), plt.title("Oryginalny obraz")
 
         original = np.fft.fft2(img)
         # plt.subplot(162), plt.imshow(np.log(1 + np.abs(original)), "gray"), plt.title("Spectrum")
 
         center = np.fft.fftshift(original)
-        # plt.subplot(163), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Centered Spectrum")
+        plt.subplot(152), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Spektrum w centrum")
 
-        LowPass = self.butterworthLP(50, img.shape, 20)
-        plt.subplot(152), plt.imshow(np.abs(LowPass), "gray"), plt.title("Low Pass Filter")
+        angle = np.angle(center)
+        plt.subplot(153), plt.imshow(np.log(1 + np.abs(angle)), "gray"), plt.title("Faza")
 
-        LowPassCenter = center * self.butterworthLP(50, img.shape, 20)
-        plt.subplot(153), plt.imshow(np.log(1 + np.abs(LowPassCenter)), "gray"), plt.title(
-            "Centered Spectrum multiply Low Pass Filter")
+        # LowPass = self.butterworthLP(50, img.shape, 20)
+        # plt.subplot(154), plt.imshow(np.abs(LowPass), "gray"), plt.title("Low Pass Filter")
+
+        LowPassCenter = center * self.butterworthLP(self.rozmiarm, img.shape, 20)
+        plt.subplot(154), plt.imshow(np.log(1 + np.abs(LowPassCenter)), "gray"), plt.title(
+            "Filtr dolnoprzepustowy")
 
         LowPass = np.fft.ifftshift(LowPassCenter)
-        plt.subplot(154), plt.imshow(np.log(1 + np.abs(LowPass)), "gray"), plt.title("Decentralize")
+        # plt.subplot(154), plt.imshow(np.log(1 + np.abs(LowPass)), "gray"), plt.title("Decentralize")
 
         inverse_LowPass = np.fft.ifft2(LowPass)
-        plt.subplot(155), plt.imshow(np.abs(inverse_LowPass), "gray"), plt.title("Processed Image")
+        plt.subplot(155), plt.imshow(np.abs(inverse_LowPass), "gray"), plt.title("Przetworzony obraz")
 
         plt.show()
 
@@ -316,26 +363,29 @@ class Filtracja:
         fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
 
         img = cv2.imread(self.imaddr, 0)
-        plt.subplot(151), plt.imshow(img, "gray"), plt.title("Original Image")
+        plt.subplot(151), plt.imshow(img, "gray"), plt.title("Oryginalny obraz")
 
         original = np.fft.fft2(img)
         # plt.subplot(162), plt.imshow(np.log(1 + np.abs(original)), "gray"), plt.title("Spectrum")
 
         center = np.fft.fftshift(original)
-        # plt.subplot(163), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Centered Spectrum")
+        plt.subplot(152), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Spektrum w centrum")
 
-        HighPass = self.butterworthHP(50, img.shape, 20)
-        plt.subplot(152), plt.imshow(np.abs(HighPass), "gray"), plt.title("High Pass Filter")
+        angle = np.angle(center)
+        plt.subplot(153), plt.imshow(np.log(1 + np.abs(angle)), "gray"), plt.title("Faza")
 
-        HighPassCenter = center * self.butterworthHP(50, img.shape, 20)
-        plt.subplot(153), plt.imshow(np.log(1 + np.abs(HighPassCenter)), "gray"), plt.title(
-            "Centered Spectrum multiply High Pass Filter")
+        # HighPass = self.butterworthHP(50, img.shape, 20)
+        # plt.subplot(153), plt.imshow(np.abs(HighPass), "gray"), plt.title("High Pass Filter")
+
+        HighPassCenter = center * self.butterworthHP(self.rozmiarm, img.shape, 20)
+        plt.subplot(154), plt.imshow(np.log(1 + np.abs(HighPassCenter)), "gray"), plt.title(
+            "Filtr górnoprzepustowy")
 
         HighPass = np.fft.ifftshift(HighPassCenter)
-        plt.subplot(154), plt.imshow(np.log(1 + np.abs(HighPass)), "gray"), plt.title("Decentralize")
+        # plt.subplot(154), plt.imshow(np.log(1 + np.abs(HighPass)), "gray"), plt.title("Decentralize")
 
         inverse_HighPass = np.fft.ifft2(HighPass)
-        plt.subplot(155), plt.imshow(np.abs(inverse_HighPass), "gray"), plt.title("Processed Image")
+        plt.subplot(155), plt.imshow(np.abs(inverse_HighPass), "gray"), plt.title("Przetworzony obraz")
 
         plt.show()
 
@@ -344,26 +394,29 @@ class Filtracja:
         fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
 
         img = cv2.imread(self.imaddr, 0)
-        plt.subplot(151), plt.imshow(img, "gray"), plt.title("Original Image")
+        plt.subplot(151), plt.imshow(img, "gray"), plt.title("Oryginalny obraz")
 
         original = np.fft.fft2(img)
         # plt.subplot(162), plt.imshow(np.log(1 + np.abs(original)), "gray"), plt.title("Spectrum")
 
         center = np.fft.fftshift(original)
-        # plt.subplot(163), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Centered Spectrum")
+        plt.subplot(152), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Spektrum w centrum")
 
-        LowPass = self.mediumLP1(50, img.shape, 20)
-        plt.subplot(152), plt.imshow(np.abs(LowPass), "gray"), plt.title("Low Pass Filter")
+        angle = np.angle(center)
+        plt.subplot(153), plt.imshow(np.log(1 + np.abs(angle)), "gray"), plt.title("Faza")
 
-        LowPassCenter = center * self.mediumLP1(50, img.shape, 20)
-        plt.subplot(153), plt.imshow(np.log(1 + np.abs(LowPassCenter)), "gray"), plt.title(
-            "Centered Spectrum multiply Low Pass Filter")
+        # LowPass = self.mediumLP1(50, img.shape, 20)
+        # plt.subplot(153), plt.imshow(np.abs(LowPass), "gray"), plt.title("Low Pass Filter")
+
+        LowPassCenter = center * self.mediumLP1(self.rozmiarm, img.shape, 20)
+        plt.subplot(154), plt.imshow(np.log(1 + np.abs(LowPassCenter)), "gray"), plt.title(
+            "Filtr dolnoprzepustowy")
 
         LowPass = np.fft.ifftshift(LowPassCenter)
-        plt.subplot(154), plt.imshow(np.log(1 + np.abs(LowPass)), "gray"), plt.title("Decentralize")
+        # plt.subplot(154), plt.imshow(np.log(1 + np.abs(LowPass)), "gray"), plt.title("Decentralize")
 
         inverse_LowPass = np.fft.ifft2(LowPass)
-        plt.subplot(155), plt.imshow(np.abs(inverse_LowPass), "gray"), plt.title("Processed Image")
+        plt.subplot(155), plt.imshow(np.abs(inverse_LowPass), "gray"), plt.title("Przetworzony obraz")
 
         plt.show()
 
@@ -372,26 +425,29 @@ class Filtracja:
         fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
 
         img = cv2.imread(self.imaddr, 0)
-        plt.subplot(151), plt.imshow(img, "gray"), plt.title("Original Image")
+        plt.subplot(151), plt.imshow(img, "gray"), plt.title("Oryginalny obraz")
 
         original = np.fft.fft2(img)
         # plt.subplot(162), plt.imshow(np.log(1 + np.abs(original)), "gray"), plt.title("Spectrum")
 
         center = np.fft.fftshift(original)
-        # plt.subplot(163), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Centered Spectrum")
+        plt.subplot(152), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Spektrum w centrum")
 
-        LowPass = self.mediumLP2(50, img.shape, 20)
-        plt.subplot(152), plt.imshow(np.abs(LowPass), "gray"), plt.title("Low Pass Filter")
+        angle = np.angle(center)
+        plt.subplot(153), plt.imshow(np.log(1 + np.abs(angle)), "gray"), plt.title("Faza")
 
-        LowPassCenter = center * self.mediumLP2(50, img.shape, 20)
-        plt.subplot(153), plt.imshow(np.log(1 + np.abs(LowPassCenter)), "gray"), plt.title(
-            "Centered Spectrum multiply Low Pass Filter")
+        # LowPass = self.mediumLP2(50, img.shape, 20)
+        # plt.subplot(153), plt.imshow(np.abs(LowPass), "gray"), plt.title("Low Pass Filter")
+
+        LowPassCenter = center * self.mediumLP2(self.rozmiarm, img.shape, 20)
+        plt.subplot(154), plt.imshow(np.log(1 + np.abs(LowPassCenter)), "gray"), plt.title(
+            "Filtr dolnoprzepustowy")
 
         LowPass = np.fft.ifftshift(LowPassCenter)
-        plt.subplot(154), plt.imshow(np.log(1 + np.abs(LowPass)), "gray"), plt.title("Decentralize")
+        # plt.subplot(154), plt.imshow(np.log(1 + np.abs(LowPass)), "gray"), plt.title("Decentralize")
 
         inverse_LowPass = np.fft.ifft2(LowPass)
-        plt.subplot(155), plt.imshow(np.abs(inverse_LowPass), "gray"), plt.title("Processed Image")
+        plt.subplot(155), plt.imshow(np.abs(inverse_LowPass), "gray"), plt.title("Przetworzony obraz")
 
         plt.show()
 
@@ -400,26 +456,29 @@ class Filtracja:
         fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
 
         img = cv2.imread(self.imaddr, 0)
-        plt.subplot(151), plt.imshow(img, "gray"), plt.title("Original Image")
+        plt.subplot(151), plt.imshow(img, "gray"), plt.title("Oryginalny obraz")
 
         original = np.fft.fft2(img)
         # plt.subplot(162), plt.imshow(np.log(1 + np.abs(original)), "gray"), plt.title("Spectrum")
 
         center = np.fft.fftshift(original)
-        # plt.subplot(163), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Centered Spectrum")
+        plt.subplot(152), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Spektrum w centrum")
 
-        HighPass = self.mediumHP1(50, img.shape, 20)
-        plt.subplot(152), plt.imshow(np.abs(HighPass), "gray"), plt.title("Low Pass Filter")
+        angle = np.angle(center)
+        plt.subplot(153), plt.imshow(np.log(1 + np.abs(angle)), "gray"), plt.title("Faza")
 
-        HighPassCenter = center * self.mediumHP1(50, img.shape, 20)
-        plt.subplot(153), plt.imshow(np.log(1 + np.abs(HighPassCenter)), "gray"), plt.title(
-            "Centered Spectrum multiply Low Pass Filter")
+        # HighPass = self.mediumHP1(50, img.shape, 20)
+        # plt.subplot(153), plt.imshow(np.abs(HighPass), "gray"), plt.title("Low Pass Filter")
+
+        HighPassCenter = center * self.mediumHP1(self.rozmiarm, img.shape, 20)
+        plt.subplot(154), plt.imshow(np.log(1 + np.abs(HighPassCenter)), "gray"), plt.title(
+            "Filtr górnoprzepustowy")
 
         HighPass = np.fft.ifftshift(HighPassCenter)
-        plt.subplot(154), plt.imshow(np.log(1 + np.abs(HighPass)), "gray"), plt.title("Decentralize")
+        # plt.subplot(154), plt.imshow(np.log(1 + np.abs(HighPass)), "gray"), plt.title("Decentralize")
 
         inverse_HighPass = np.fft.ifft2(HighPass)
-        plt.subplot(155), plt.imshow(np.abs(inverse_HighPass), "gray"), plt.title("Processed Image")
+        plt.subplot(155), plt.imshow(np.abs(inverse_HighPass), "gray"), plt.title("Przetworzony obraz")
 
         plt.show()
 
@@ -428,33 +487,34 @@ class Filtracja:
         fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
 
         img = cv2.imread(self.imaddr, 0)
-        plt.subplot(151), plt.imshow(img, "gray"), plt.title("Original Image")
+        plt.subplot(151), plt.imshow(img, "gray"), plt.title("Oryginalny obraz")
 
         original = np.fft.fft2(img)
         # plt.subplot(162), plt.imshow(np.log(1 + np.abs(original)), "gray"), plt.title("Spectrum")
 
         center = np.fft.fftshift(original)
-        # plt.subplot(163), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Centered Spectrum")
+        plt.subplot(152), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Spektrum w centrum")
 
-        HighPass = self.mediumHP2(50, img.shape, 20)
-        plt.subplot(152), plt.imshow(np.abs(HighPass), "gray"), plt.title("Low Pass Filter")
+        angle = np.angle(center)
+        plt.subplot(153), plt.imshow(np.log(1 + np.abs(angle)), "gray"), plt.title("Faza")
 
-        HighPassCenter = center * self.mediumHP2(50, img.shape, 20)
-        plt.subplot(153), plt.imshow(np.log(1 + np.abs(HighPassCenter)), "gray"), plt.title(
-            "Centered Spectrum multiply Low Pass Filter")
+        # HighPass = self.mediumHP2(50, img.shape, 20)
+        # plt.subplot(153), plt.imshow(np.abs(HighPass), "gray"), plt.title("Low Pass Filter")
+
+        HighPassCenter = center * self.mediumHP2(self.rozmiarm, img.shape, 20)
+        plt.subplot(154), plt.imshow(np.log(1 + np.abs(HighPassCenter)), "gray"), plt.title(
+            "Filtr górnoprzepustowy")
 
         HighPass = np.fft.ifftshift(HighPassCenter)
-        plt.subplot(154), plt.imshow(np.log(1 + np.abs(HighPass)), "gray"), plt.title("Decentralize")
+        # plt.subplot(154), plt.imshow(np.log(1 + np.abs(HighPass)), "gray"), plt.title("Decentralize")
 
         inverse_HighPass = np.fft.ifft2(HighPass)
-        plt.subplot(155), plt.imshow(np.abs(inverse_HighPass), "gray"), plt.title("Processed Image")
+        plt.subplot(155), plt.imshow(np.abs(inverse_HighPass), "gray"), plt.title("Przetworzony obraz")
 
         plt.show()
 
-
     def distance(self, point1, point2):
         return math.sqrt((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2)
-
 
     def idealFilterLP(self, D0, imgShape):
         base = np.zeros(imgShape[:2])
@@ -518,7 +578,7 @@ class Filtracja:
         center = (rows / 2, cols / 2)
         for x in range(cols):
             for y in range(rows):
-                if self.distance((y, x), center) < D0+width:
+                if self.distance((y, x), center) < D0 + width:
                     base[y, x] = 1
         for x in range(cols):
             for y in range(rows):
@@ -532,7 +592,7 @@ class Filtracja:
         center = (rows / 2, cols / 2)
         for x in range(cols):
             for y in range(rows):
-                if self.distance((y, x), center) < D0+width:
+                if self.distance((y, x), center) < D0 + width:
                     base[y, x] = 0
         for x in range(cols):
             for y in range(rows):
@@ -546,11 +606,12 @@ class Filtracja:
         center = (rows / 2, cols / 2)
         for x in range(cols):
             for y in range(rows):
-                if x >= center[0]-D0-width and x<= center[0]+D0+width and y >= center[1]-D0-width and y<= center[1]+D0+width:
+                if x >= center[0] - D0 - width and x <= center[0] + D0 + width and y >= center[1] - D0 - width and y <= \
+                        center[1] + D0 + width:
                     base[y, x] = 1
         for x in range(cols):
             for y in range(rows):
-                if x >= center[0]-D0 and x<= center[0]+D0 and y >= center[1]-D0 and y<= center[1]+D0:
+                if x >= center[0] - D0 and x <= center[0] + D0 and y >= center[1] - D0 and y <= center[1] + D0:
                     base[y, x] = 0
         return base
 
@@ -560,11 +621,12 @@ class Filtracja:
         center = (rows / 2, cols / 2)
         for x in range(cols):
             for y in range(rows):
-                if x >= center[0]-D0-width and x<= center[0]+D0+width and y >= center[1]-D0-width and y<= center[1]+D0+width:
+                if x >= center[0] - D0 - width and x <= center[0] + D0 + width and y >= center[1] - D0 - width and y <= \
+                        center[1] + D0 + width:
                     base[y, x] = 0
         for x in range(cols):
             for y in range(rows):
-                if x >= center[0]-D0 and x<= center[0]+D0 and y >= center[1]-D0 and y<= center[1]+D0:
+                if x >= center[0] - D0 and x <= center[0] + D0 and y >= center[1] - D0 and y <= center[1] + D0:
                     base[y, x] = 1
         return base
 
@@ -574,7 +636,7 @@ class Filtracja:
         center = (rows / 2, cols / 2)
         for x in range(cols):
             for y in range(rows):
-                if x >= center[0]-D0 and x<= center[0]+D0 and y >= center[1]-D0 and y<= center[1]+D0:
+                if x >= center[0] - D0 and x <= center[0] + D0 and y >= center[1] - D0 and y <= center[1] + D0:
                     base[y, x] = 1
         return base
 
@@ -584,7 +646,7 @@ class Filtracja:
         center = (rows / 2, cols / 2)
         for x in range(cols):
             for y in range(rows):
-                if x >= center[0]-D0 and x<= center[0]+D0 and y >= center[1]-D0 and y<= center[1]+D0:
+                if x >= center[0] - D0 and x <= center[0] + D0 and y >= center[1] - D0 and y <= center[1] + D0:
                     base[y, x] = 0
         return base
 
@@ -604,15 +666,20 @@ class Filtracja:
             title='Selected File',
             message=self.imaddr
         )
-        photo = Image.open(self.imaddr)
-        ph = ImageTk.PhotoImage(photo)
+        # photo = Image.open(self.imaddr)
+        # ph = ImageTk.PhotoImage(photo)
+        #
+        # label = Label(self.window, image=ph)
+        # label.image = ph
+        # label.grid(rowspan=2)
 
-        label = Label(self.window, image=ph)
-        label.image = ph
-        label.grid(rowspan=2)
-
+        self.rozmiarm = self.rozmiarm
 
 root = Tk()
+width= root.winfo_screenwidth()
+height= root.winfo_screenheight()
+root.geometry("%dx%d" % (width, height))
+root.title("Transformator Fouriera")
 
 b = Filtracja(root, "kosc.bmp")
 
@@ -764,11 +831,11 @@ root.mainloop()
 # img_c4 = np.fft.ifftshift(img_c3)
 # img_c5 = np.fft.ifft2(img_c4)
 #
-# plt.subplot(151), plt.imshow(img_c1, "gray"), plt.title("Original Image")
+# plt.subplot(151), plt.imshow(img_c1, "gray"), plt.title("Oryginalny obraz")
 # plt.subplot(152), plt.imshow(np.log(1+np.abs(img_c2)), "gray"), plt.title("Spectrum")
-# plt.subplot(153), plt.imshow(np.log(1+np.abs(img_c3)), "gray"), plt.title("Centered Spectrum")
+# plt.subplot(153), plt.imshow(np.log(1+np.abs(img_c3)), "gray"), plt.title("Spektrum w centrum")
 # plt.subplot(154), plt.imshow(np.log(1+np.abs(img_c4)), "gray"), plt.title("Decentralized")
-# plt.subplot(155), plt.imshow(np.abs(img_c5), "gray"), plt.title("Processed Image")
+# plt.subplot(155), plt.imshow(np.abs(img_c5), "gray"), plt.title("Przetworzony obraz")
 #
 # plt.show()
 
