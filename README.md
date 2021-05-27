@@ -4,3 +4,4 @@
 # TODO
 - Zaktualiwoanie tekstu na język polski w aplikacji
 - Ustandaryzowanie subplotów
+- TEST BRANCHA
