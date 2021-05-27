@@ -4,6 +4,7 @@ from tkinter import *
 from tkinter.messagebox import showinfo
 
 from tkinter import filedialog as fd
+
 import math
 import cv2
 import numpy as np
@@ -14,16 +15,24 @@ from PIL import ImageTk, Image
 class Filtracja:
 
     def __init__(self, window, imaddr):
+
+
         """Metoda init w tym wypadku służy do budowania całego GUI"""
-        self.button = Button(window, text="check")
+        self.button = Button(window, text="CHECK/REZULTAT", font="Calibri 20")
         self.window = window
         # self.filename = ""
         self.imaddr = imaddr
         # self.box = Entry(window)
 
-        self.button2 = Button(window, text="Open file", command=self.select_file)
-        self.dropLab = Label(root, text="Wybór maski")
-        self.drop2Lab = Label(root, text="Wybór kształtu")
+        self.button2 = Button(window, text="OTWÓRZ PLIK", font="Calibri 20", command=self.select_file)
+        self.dropLab = Label(root, font="Calibri 20", text="WYBÓR MASKI")
+
+        self.slider1 = Scale(window, from_=0, to=100, tickinterval=25, length=300, orient=HORIZONTAL, font="Calibri 16")
+        self.slider1.set(50)
+        self.button3 = Button(window, text="ZAPISZ SLIDER", font="Calibri 20", command=self.show_values, )  #
+
+
+        self.drop2Lab = Label(root, text="WYBÓR KRZTAŁTU", font="Calibri 20")
 
         self.clicked = StringVar()
         self.clicked2 = StringVar()
@@ -36,14 +45,26 @@ class Filtracja:
         # self.drop2 = OptionMenu(window, self.clicked2, "Okrągły", "Kwadratowy")
         self.dropLab.grid(row=1, column=0)
         self.drop.grid(row=1, column=1)
+
+        self.slider1.grid(row=3, column=0)
+        self.drop2Lab.grid(row=5, column=0)
+        self.drop2.grid(row=5, column=1)
+        self.drop.config(font="Calibri 20")
+        self.drop2.config(font="Calibri 20")
+        
         # self.drop2Lab.grid(row=2, column=0)
         # self.drop2.grid(row=2, column=1)
+
         # self.box.pack()
+        self.button3.grid(row=4, column=0)
         self.button2.grid(row=0, column=0)
         self.button.grid(row=0, column=1)
         # self.button3 = Button(root, text="Show selection", command=self.show).grid(row=3, column=0)
         self.n = 0
         self.textfield = None
+
+    def show_values(self):
+        self.rozmiarm = self.slider1.get()
 
     def switch(self, value):
         """Metoda służy do przypisywania metod z odpowiednimi maskami do odpowiadających im wyborów z OptionMenu"""
@@ -52,32 +73,32 @@ class Filtracja:
         if option == "Dolnoprzepustowa Okrągła":
             print("LP KOLO")
             self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="check", command=self.plotLP)  # tworzy nowy przycisk
+            self.button = Button(root, text="CHECK/REZULTAT", command=self.plotLP, font="Calibri 20")  # tworzy nowy przycisk
             self.button.grid(row=0, column=1)  # ustawia nowy przycisk
         elif option == "Górnoprzepustowa Okrągła":
             print("HP KOLO")
             self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="check", command=self.plotHP)  # tworzy nowy przycisk
+            self.button = Button(root, text="CHECK/REZULTAT", command=self.plotHP, font="Calibri 20")  # tworzy nowy przycisk
             self.button.grid(row=0, column=1)  # ustawia nowy przycisk
         elif option == "Dolnoprzepustowa Kwadratowa":
             print("LP KWADRAT")
             self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="check", command=self.plotLPS)  # tworzy nowy przycisk
+            self.button = Button(root, text="CHECK/REZULTAT", command=self.plotLPS, font="Calibri 20")  # tworzy nowy przycisk
             self.button.grid(row=0, column=1)  # ustawia nowy przycisk
         elif option == "Górnoprzepustowa Kwadratowa":
             print("HP KOLO")
             self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="check", command=self.plotHPS)  # tworzy nowy przycisk
+            self.button = Button(root, text="CHECK/REZULTAT", command=self.plotHPS, font="Calibri 20")  # tworzy nowy przycisk
             self.button.grid(row=0, column=1)  # ustawia nowy przycisk
         elif option == "Gaussian LP":
             print("HMM2")
             self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="check", command=self.plotGaussLP)  # tworzy nowy przycisk
+            self.button = Button(root, text="CHECK/REZULTAT", command=self.plotGaussLP, font="Calibri 20")  # tworzy nowy przycisk
             self.button.grid(row=0, column=1)  # ustawia nowy przycisk
         elif option == "Gaussian HP":
             print("HMM2")
             self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="check", command=self.plotGaussHP)  # tworzy nowy przycisk
+            self.button = Button(root, text="CHECK/REZULTAT", command=self.plotGaussHP, font="Calibri 20")  # tworzy nowy przycisk
             self.button.grid(row=0, column=1)  # ustawia nowy przycisk
         elif option == "Butterworth LP":
             # print("HMM2")
@@ -86,28 +107,28 @@ class Filtracja:
             # self.textfield.grid(row=2, column=1, sticky=W)
             # self.n = self.textfield.get("1.0",'end-1c')
             self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="check", command=self.plotButterLP)  # tworzy nowy przycisk
+            self.button = Button(root, text="CHECK/REZULTAT", command=self.plotButterLP, font="Calibri 20")  # tworzy nowy przycisk
             self.button.grid(row=0, column=1)  # ustawia nowy przycisk
         elif option == "Butterworth HP":
             print("HMM2")
             self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="check", command=self.plotButterHP)  # tworzy nowy przycisk
+            self.button = Button(root, text="CHECK/REZULTAT", command=self.plotButterHP, font="Calibri 20")  # tworzy nowy przycisk
             self.button.grid(row=0, column=1)  # ustawia nowy przycisk
         elif option == "Środkowo-p pierścień LP":
             self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="check", command=self.plotMPCirLP)  # tworzy nowy przycisk
+            self.button = Button(root, text="CHECK/REZULTAT", command=self.plotMPCirLP(), font="Calibri 20")  # tworzy nowy przycisk
             self.button.grid(row=0, column=1)  # ustawia nowy przycisk
         elif option == "Środkowo-p pierścień HP":
             self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="check", command=self.plotMPCirHP)  # tworzy nowy przycisk
+            self.button = Button(root, text="CHECK/REZULTAT", command=self.plotMPCirHP(), font="Calibri 20")  # tworzy nowy przycisk
             self.button.grid(row=0, column=1)  # ustawia nowy przycisk
         elif option == "Środkowo-p kwadrat LP":
             self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="check", command=self.plotMPSqrLP)  # tworzy nowy przycisk
+            self.button = Button(root, text="CHECK/REZULTAT", command=self.plotMPSqrLP, font="Calibri 20")  # tworzy nowy przycisk
             self.button.grid(row=0, column=1)  # ustawia nowy przycisk
         elif option == "Środkowo-p kwadrat HP":
             self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="check", command=self.plotMPSqrHP)  # tworzy nowy przycisk
+            self.button = Button(root, text="CHECK/REZULTAT", command=self.plotMPSqrHP, font="Calibri 20")  # tworzy nowy przycisk
             self.button.grid(row=0, column=1)  # ustawia nowy przycisk
         else:
             """Jeżeli wybrana opcja z menu nie została jeszcze zaimplementowana, usuń przycisk"""
@@ -132,7 +153,7 @@ class Filtracja:
         angle = np.angle(center)
         plt.subplot(163), plt.imshow(np.log(1 + np.abs(angle)), "gray"), plt.title("Faza")
 
-        LowPassCenter = center * self.idealFilterLP(50, img.shape)
+        LowPassCenter = center * self.idealFilterLP(self.rozmiarm, img.shape)
         plt.subplot(164), plt.imshow(np.log(1 + np.abs(LowPassCenter)), "gray"), plt.title(
             "Centrum * filtr dolnoprzepustowy")
 
@@ -157,11 +178,11 @@ class Filtracja:
         center = np.fft.fftshift(original)
         plt.subplot(152), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Centered Spectrum")
 
-        HighPass = self.idealFilterHP(50, img.shape)
-        plt.subplot(153), plt.imshow(np.abs(HighPass), "gray"), plt.title("High Pass Filter")
+        HighPass = self.idealFilterHP(self.rozmiarm, img.shape)
+        plt.subplot(152), plt.imshow(np.abs(HighPass), "gray"), plt.title("High Pass Filter")
 
-        HighPassCenter = center * self.idealFilterHP(50, img.shape)
-        plt.subplot(154), plt.imshow(np.log(1 + np.abs(HighPassCenter)), "gray"), plt.title(
+        HighPassCenter = center * self.idealFilterHP(self.rozmiarm, img.shape)
+        plt.subplot(153), plt.imshow(np.log(1 + np.abs(HighPassCenter)), "gray"), plt.title(
             "Centered Spectrum multiply High Pass Filter")
 
         HighPass = np.fft.ifftshift(HighPassCenter)
@@ -210,11 +231,11 @@ class Filtracja:
         center = np.fft.fftshift(original)
         plt.subplot(152), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Centered Spectrum")
 
-        HighPass = self.squareHP(50, img.shape)
-        plt.subplot(153), plt.imshow(np.abs(HighPass), "gray"), plt.title("High Pass Filter")
+        HighPass = self.squareHP(self.rozmiarm, img.shape)
+        plt.subplot(152), plt.imshow(np.abs(HighPass), "gray"), plt.title("High Pass Filter")
 
-        HighPassCenter = center * self.squareHP(50, img.shape)
-        plt.subplot(154), plt.imshow(np.log(1 + np.abs(HighPassCenter)), "gray"), plt.title(
+        HighPassCenter = center * self.squareHP(self.rozmiarm, img.shape)
+        plt.subplot(153), plt.imshow(np.log(1 + np.abs(HighPassCenter)), "gray"), plt.title(
             "Centered Spectrum multiply High Pass Filter")
 
         HighPass = np.fft.ifftshift(HighPassCenter)
@@ -613,6 +634,10 @@ class Filtracja:
 
 
 root = Tk()
+width= root.winfo_screenwidth()
+height= root.winfo_screenheight()
+root.geometry("%dx%d" % (width, height))
+root.title("Transformator Fouriera")
 
 b = Filtracja(root, "kosc.bmp")
 
