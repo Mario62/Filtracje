@@ -1,9 +1,10 @@
-# TODO Znaleźć sposób na poprawne zastosowanie i odczytywanie textfield
+# TODO Zmiana języka, dopracować wygląd przcisków, wielkość czcionek w liście rozwijanej, układ obrazków
 
 from tkinter import *
 from tkinter.messagebox import showinfo
 
-from tkinter import filedialog as fd
+from tkinter import filedialog as fd, font
+from tkinter import font as tkFont
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg,
                                                NavigationToolbar2Tk)
@@ -24,7 +25,7 @@ class Filtracja:
         """Metoda init w tym wypadku służy do budowania całego GUI"""
         self.rozmiarm = 50
         # self.drop2 = None
-        self.button = Button(window, text="CHECK/REZULTAT", font="Calibri 20")
+        self.button = Button(window, text="Pokaż wynik", font="Calibri 20")
         self.window = window
         # self.filename = ""
         self.imaddr = imaddr
@@ -35,7 +36,7 @@ class Filtracja:
 
         self.slider1 = Scale(window, from_=0, to=100, tickinterval=25, length=300, orient=HORIZONTAL, font="Calibri 16")
         self.slider1.set(50)
-        self.button3 = Button(window, text="ZAPISZ SLIDER", font="Calibri 20", command=self.show_values, )  #
+        # self.button3 = Button(window, text="ZAPISZ", font="Calibri 20", command=self.show_values, )  #
 
 
         # self.drop2Lab = Label(root, text="WYBÓR KRZTAŁTU", font="Calibri 20")
@@ -49,6 +50,9 @@ class Filtracja:
                         "Środkowo-p pierścień HP",)
         self.drop = OptionMenu(window, self.clicked, *self.options, command=self.switch)
         # self.drop2 = OptionMenu(window, self.clicked2, "Okrągły", "Kwadratowy")
+        helv20 = tkFont.Font(family='Helvetica', size=20)
+        menu = root.nametowidget(self.drop.menuname)
+        menu.config(font=helv20)  # Set the dropdown menu's font
         self.dropLab.grid(row=1, column=0)
         self.drop.grid(row=1, column=1)
 
@@ -62,7 +66,7 @@ class Filtracja:
         # self.drop2.grid(row=2, column=1)
 
         # self.box.pack()
-        self.button3.grid(row=4, column=0)
+        # self.button3.grid(row=4, column=0)
         self.button2.grid(row=0, column=0)
         self.button.grid(row=0, column=1)
         # self.button3 = Button(root, text="Show selection", command=self.show).grid(row=3, column=0)
@@ -150,6 +154,7 @@ class Filtracja:
         myLabel = Label(root, text=self.clicked.get()).grid(row=3, column=1)
 
     def plotLP(self):
+        self.rozmiarm = self.slider1.get()
         fig = plt.figure(figsize=(7,7), dpi=200)
         # fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
 
@@ -189,6 +194,7 @@ class Filtracja:
 
 
     def plotHP(self):
+        self.rozmiarm = self.slider1.get()
         fig = plt.figure(figsize=(6.4 * 5, 4.8 * 5), constrained_layout=False)
         fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
 
@@ -220,6 +226,7 @@ class Filtracja:
         plt.show()
 
     def plotLPS(self):
+        self.rozmiarm = self.slider1.get()
         fig = plt.figure(figsize=(6.4 * 5, 4.8 * 5), constrained_layout=False)
         fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
 
@@ -248,6 +255,7 @@ class Filtracja:
         plt.show()
 
     def plotHPS(self):
+        self.rozmiarm = self.slider1.get()
         fig = plt.figure(figsize=(6.4 * 5, 4.8 * 5), constrained_layout=False)
         fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
 
@@ -279,6 +287,7 @@ class Filtracja:
         plt.show()
 
     def plotGaussLP(self):
+        self.rozmiarm = self.slider1.get()
         fig = plt.figure(figsize=(6.4 * 5, 4.8 * 5), constrained_layout=False)
         fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
 
@@ -310,6 +319,7 @@ class Filtracja:
         plt.show()
 
     def plotGaussHP(self):
+        self.rozmiarm = self.slider1.get()
         fig = plt.figure(figsize=(6.4 * 5, 4.8 * 5), constrained_layout=False)
         fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
 
@@ -341,8 +351,7 @@ class Filtracja:
         plt.show()
 
     def plotButterLP(self):
-        # print("DZIAD: ", self.n)
-        # # self.n = self.textfield.get(1)
+        self.rozmiarm = self.slider1.get()
         fig = plt.figure(figsize=(6.4 * 5, 4.8 * 5), constrained_layout=False)
         fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
 
@@ -374,6 +383,7 @@ class Filtracja:
         plt.show()
 
     def plotButterHP(self):
+        self.rozmiarm = self.slider1.get()
         fig = plt.figure(figsize=(6.4 * 5, 4.8 * 5), constrained_layout=False)
         fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
 
@@ -405,6 +415,7 @@ class Filtracja:
         plt.show()
 
     def plotMPCirLP(self):
+        self.rozmiarm = self.slider1.get()
         fig = plt.figure(figsize=(6.4 * 5, 4.8 * 5), constrained_layout=False)
         fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
 
@@ -436,6 +447,7 @@ class Filtracja:
         plt.show()
 
     def plotMPSqrLP(self):
+        self.rozmiarm = self.slider1.get()
         fig = plt.figure(figsize=(6.4 * 5, 4.8 * 5), constrained_layout=False)
         fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
 
@@ -467,6 +479,7 @@ class Filtracja:
         plt.show()
 
     def plotMPCirHP(self):
+        self.rozmiarm = self.slider1.get()
         fig = plt.figure(figsize=(6.4 * 5, 4.8 * 5), constrained_layout=False)
         fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
 
@@ -498,6 +511,7 @@ class Filtracja:
         plt.show()
 
     def plotMPSqrHP(self):
+        self.rozmiarm = self.slider1.get()
         fig = plt.figure(figsize=(6.4 * 5, 4.8 * 5), constrained_layout=False)
         fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
 
