@@ -23,15 +23,16 @@ class Filtracja:
         self.optionVal = None
         self.center = None
         self.rozmiarm = 50
+        self.window = window
         # self.drop2 = None
+        self.plotframe = Frame(self.window)
+        self.plotframe.pack(side="top")
 
-        frame = LabelFrame(window, text="Przyciski kontrolne", padx=5, pady=5)
+        frame = LabelFrame(window, text="Przyciski kontrolne", padx=5, pady=10)
 
         frame.pack(padx=10, pady=10, side="bottom")
-
-
         self.runBtn = Button(frame, text="Pokaż wynik", font="Calibri 20")
-        self.window = window
+
         # self.filename = ""
         self.imaddr = imaddr
         # self.box = Entry(window)
@@ -62,6 +63,9 @@ class Filtracja:
         self.maskSlider.grid(row=1, column=3, padx=2)
         self.fileBtn.grid(row=1, column=0, padx=2)
         self.runBtn.grid(row=1, column=1, padx=2)
+
+
+        self.canvas = None
 
         self.n = 0
         self.textfield = None
@@ -183,13 +187,18 @@ class Filtracja:
 
 
     def drawplot(self):
+        if self.canvas is not None:
+            self.plotframe.destroy()
+            self.plotframe = Frame(self.window)
+            self.plotframe.pack(side="top")
+
         self.rozmiarm = self.maskSlider.get()
-        fig = plt.figure(figsize=(7, 7), dpi=200)
+        fig = plt.figure(figsize=(7, 7), dpi=120)
         # fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
 
 
         self.img = cv2.imread(self.imaddr, 0)
-        plt.subplot2grid((3, 3), (0, 0)), plt.imshow(self.img, "gray"), plt.title("Oryg. obraz")
+        plt.subplot2grid((2, 2), (0, 0)), plt.imshow(self.img, "gray"), plt.title("Oryg. obraz")
         self.tick_remover()
         # plot1 = fig.add_subplot(161)
         # plot1.imshow(img, "gray")
@@ -198,16 +207,16 @@ class Filtracja:
         # plt.subplot(162), plt.imshow(np.log(1 + np.abs(original)), "gray"), plt.title("Spektrum")
 
         self.center = np.fft.fftshift(original)
-        plt.subplot2grid((3, 3), (1, 0), colspan=1), plt.imshow(np.log(1 + np.abs(self.center)), "gray"), plt.title(
+        plt.subplot2grid((3, 3), (2, 0), colspan=1), plt.imshow(np.log(1 + np.abs(self.center)), "gray"), plt.title(
             "Amplituda")
         self.tick_remover()
 
         angle = np.angle(self.center)
-        plt.subplot2grid((3, 3), (1, 1), colspan=1), plt.imshow(np.log(1 + np.abs(angle)), "gray"), plt.title("Faza")
+        plt.subplot2grid((3, 3), (2, 1), colspan=1), plt.imshow(np.log(1 + np.abs(angle)), "gray"), plt.title("Faza")
         self.tick_remover()
 
         LowPassCenter = self.chooseMask(self.optionVal)
-        plt.subplot2grid((3, 3), (1, 2), colspan=1), plt.imshow(np.log(1 + np.abs(LowPassCenter)), "gray"), plt.title(
+        plt.subplot2grid((3, 3), (2, 2), colspan=1), plt.imshow(np.log(1 + np.abs(LowPassCenter)), "gray"), plt.title(
             "Filtr")
         self.tick_remover()
 
@@ -215,18 +224,18 @@ class Filtracja:
         # plt.subplot(155), plt.imshow(np.log(1 + np.abs(LowPass)), "gray"), plt.title("Decentralizacja")
 
         inverse_LowPass = np.fft.ifft2(LowPass)
-        plt.subplot2grid((3, 3), (0, 1), colspan=1), plt.imshow(np.abs(inverse_LowPass), "gray"), plt.title(
+        plt.subplot2grid((2, 2), (0, 1), colspan=1), plt.imshow(np.abs(inverse_LowPass), "gray"), plt.title(
             "Obraz wynik.")
         self.tick_remover()
 
-        plt.tight_layout()
+        # plt.tight_layout()
 
-        canvas = FigureCanvasTkAgg(fig,
-                                   master=root)
-        canvas.draw()
+        self.canvas = FigureCanvasTkAgg(fig,
+                                   master=self.plotframe)
+        self.canvas.draw()
 
         # placing the canvas on the Tkinter window
-        canvas.get_tk_widget().pack()
+        self.canvas.get_tk_widget().pack()
 
     def tick_remover(self):
         plt.tick_params(left=False,
