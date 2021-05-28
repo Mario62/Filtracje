@@ -24,21 +24,24 @@ class Filtracja:
         self.center = None
         self.rozmiarm = 50
         # self.drop2 = None
-        self.button = Button(window, text="Pokaż wynik", font="Calibri 20")
+
+        frame = LabelFrame(window, text="Przyciski kontrolne", padx=5, pady=5)
+
+        frame.pack(padx=10, pady=10, side="bottom")
+
+
+        self.runBtn = Button(frame, text="Pokaż wynik", font="Calibri 20")
         self.window = window
         # self.filename = ""
         self.imaddr = imaddr
         # self.box = Entry(window)
 
-        self.button2 = Button(window, text="OTWÓRZ PLIK", font="Calibri 20", command=self.select_file)
-        self.dropLab = Label(root, font="Calibri 20", text="WYBÓR MASKI")
+        self.fileBtn = Button(frame, text="Otwórz plik", font="Calibri 20", command=self.select_file)
+        self.dropLab = Label(frame, font="Calibri 20", text="Wybór maski")
 
-        self.slider1 = Scale(window, from_=0, to=100, tickinterval=25, length=300, orient=HORIZONTAL, font="Calibri 16")
-        self.slider1.set(50)
-        # self.button3 = Button(window, text="ZAPISZ", font="Calibri 20", command=self.show_values, )  #
-
-        # self.drop2Lab = Label(root, text="WYBÓR KRZTAŁTU", font="Calibri 20")
-
+        self.maskSlider = Scale(frame, from_=0, to=100, tickinterval=25, length=300, orient=HORIZONTAL, font="Calibri 16")
+        maskLab = Label(frame, font="Calibri 20", text="Rozmiar maski")
+        self.maskSlider.set(50)
         self.clicked = StringVar()
         self.clicked2 = StringVar()
         self.options = ("Dolnoprzepustowa Okrągła", "Górnoprzepustowa Okrągła", "Dolnoprzepustowa Kwadratowa",
@@ -46,34 +49,26 @@ class Filtracja:
                         "Gaussian HP", "Butterworth LP", "Butterworth HP",
                         "Środkowo-p kwadrat LP", "Środkowo-p kwadrat HP", "Środkowo-p pierścień LP",
                         "Środkowo-p pierścień HP")
-        self.drop = OptionMenu(window, self.clicked, *self.options, command=self.switch)
+        self.drop = OptionMenu(frame, self.clicked, *self.options, command=self.switch)
         # self.drop2 = OptionMenu(window, self.clicked2, "Okrągły", "Kwadratowy")
         helv20 = tkFont.Font(family='Helvetica', size=20)
         menu = root.nametowidget(self.drop.menuname)
         menu.config(font=helv20)  # Set the dropdown menu's font
-        self.dropLab.grid(row=1, column=0)
-        self.drop.grid(row=1, column=1)
 
-        self.slider1.grid(row=3, column=0)
-        # self.drop2Lab.grid(row=5, column=0)
-        # self.drop2.grid(row=5, column=1)
         self.drop.config(font="Calibri 20")
-        # self.drop2.config(font="Calibri 20")
+        self.dropLab.grid(row=0, column=2, padx=2)
+        self.drop.grid(row=1, column=2, padx=2)
+        maskLab.grid(row=0, column=3 )
+        self.maskSlider.grid(row=1, column=3, padx=2)
+        self.fileBtn.grid(row=1, column=0, padx=2)
+        self.runBtn.grid(row=1, column=1, padx=2)
 
-        # self.drop2Lab.grid(row=2, column=0)
-        # self.drop2.grid(row=2, column=1)
-
-        # self.box.pack()
-        # self.button3.grid(row=4, column=0)
-        self.button2.grid(row=0, column=0)
-        self.button.grid(row=0, column=1)
-        # self.button3 = Button(root, text="Show selection", command=self.show).grid(row=3, column=0)
         self.n = 0
         self.textfield = None
         self.img = None
 
     def show_values(self):
-        self.rozmiarm = self.slider1.get()
+        self.rozmiarm = self.maskSlider.get()
 
     def switch(self, value):
         """Metoda służy do przypisywania metod z odpowiednimi maskami do odpowiadających im wyborów z OptionMenu"""
@@ -81,80 +76,76 @@ class Filtracja:
         print(value)
         if option == "Dolnoprzepustowa Okrągła":
             self.optionVal = option
-            self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="CHECK/REZULTAT", command=self.drawplot,
+            self.runBtn.grid_forget()  # usuwa istniejący przycisk
+            self.runBtn.config(text="CHECK/REZULTAT", command=self.drawplot,
                                  font="Calibri 20")  # tworzy nowy przycisk
-            self.button.grid(row=0, column=1)  # ustawia nowy przycisk
+            self.runBtn.grid(row=1, column=1)  # ustawia nowy przycisk
         elif option == "Górnoprzepustowa Okrągła":
             self.optionVal = option
-            self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="CHECK/REZULTAT", command=self.drawplot,
+            self.runBtn.grid_forget()  # usuwa istniejący przycisk
+            self.runBtn.config(text="CHECK/REZULTAT", command=self.drawplot,
                                  font="Calibri 20")  # tworzy nowy przycisk
-            self.button.grid(row=0, column=1)  # ustawia nowy przycisk
+            self.runBtn.grid(row=1, column=1)  # ustawia nowy przycisk
         elif option == "Dolnoprzepustowa Kwadratowa":
             self.optionVal = option
-            self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="CHECK/REZULTAT", command=self.drawplot,
+            self.runBtn.grid_forget()  # usuwa istniejący przycisk
+            self.runBtn.config(text="CHECK/REZULTAT", command=self.drawplot,
                                  font="Calibri 20")  # tworzy nowy przycisk
-            self.button.grid(row=0, column=1)  # ustawia nowy przycisk
+            self.runBtn.grid(row=1, column=1)  # ustawia nowy przycisk
         elif option == "Górnoprzepustowa Kwadratowa":
             self.optionVal = option
-            self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="CHECK/REZULTAT", command=self.drawplot,
+            self.runBtn.grid_forget()  # usuwa istniejący przycisk
+            self.runBtn.config(text="CHECK/REZULTAT", command=self.drawplot,
                                  font="Calibri 20")  # tworzy nowy przycisk
-            self.button.grid(row=0, column=1)  # ustawia nowy przycisk
+            self.runBtn.grid(row=1, column=1)  # ustawia nowy przycisk
         elif option == "Gaussian LP":
             self.optionVal = option
-            self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="CHECK/REZULTAT", command=self.drawplot,
+            self.runBtn.grid_forget()  # usuwa istniejący przycisk
+            self.runBtn.config(text="CHECK/REZULTAT", command=self.drawplot,
                                  font="Calibri 20")  # tworzy nowy przycisk
-            self.button.grid(row=0, column=1)  # ustawia nowy przycisk
+            self.runBtn.grid(row=1, column=1)  # ustawia nowy przycisk
         elif option == "Gaussian HP":
             self.optionVal = option
-            self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="CHECK/REZULTAT", command=self.drawplot,
+            self.runBtn.grid_forget()  # usuwa istniejący przycisk
+            self.runBtn.config(text="CHECK/REZULTAT", command=self.drawplot,
                                  font="Calibri 20")  # tworzy nowy przycisk
-            self.button.grid(row=0, column=1)  # ustawia nowy przycisk
+            self.runBtn.grid(row=1, column=1)  # ustawia nowy przycisk
         elif option == "Butterworth LP":
             self.optionVal = option
-            # Label(self.window, text="Podaj n=").grid(row=2, column=0)
-            # self.textfield = Text(self.window, height=1, width=3)
-            # self.textfield.grid(row=2, column=1, sticky=W)
-            # self.n = self.textfield.get("1.0",'end-1c')
-            self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="CHECK/REZULTAT", command=self.drawplot,
+            self.runBtn.grid_forget()  # usuwa istniejący przycisk
+            self.runBtn.config(text="CHECK/REZULTAT", command=self.drawplot,
                                  font="Calibri 20")  # tworzy nowy przycisk
-            self.button.grid(row=0, column=1)  # ustawia nowy przycisk
+            self.runBtn.grid(row=1, column=1)  # ustawia nowy przycisk
         elif option == "Butterworth HP":
             self.optionVal = option
-            self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="CHECK/REZULTAT", command=self.drawplot,
+            self.runBtn.grid_forget()  # usuwa istniejący przycisk
+            self.runBtn.config(text="CHECK/REZULTAT", command=self.drawplot,
                                  font="Calibri 20")  # tworzy nowy przycisk
-            self.button.grid(row=0, column=1)  # ustawia nowy przycisk
+            self.runBtn.grid(row=1, column=1)  # ustawia nowy przycisk
         elif option == "Środkowo-p kwadrat LP":
             self.optionVal = option
-            self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="CHECK/REZULTAT", command=self.drawplot,
+            self.runBtn.grid_forget()  # usuwa istniejący przycisk
+            self.runBtn.config(text="CHECK/REZULTAT", command=self.drawplot,
                                  font="Calibri 20")  # tworzy nowy przycisk
-            self.button.grid(row=0, column=1)  # ustawia nowy przycisk
+            self.runBtn.grid(row=1, column=1)  # ustawia nowy przycisk
         elif option == "Środkowo-p kwadrat HP":
             self.optionVal = option
-            self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="CHECK/REZULTAT", command=self.drawplot,
+            self.runBtn.grid_forget()  # usuwa istniejący przycisk
+            self.runBtn.config(text="CHECK/REZULTAT", command=self.drawplot,
                                  font="Calibri 20")  # tworzy nowy przycisk
-            self.button.grid(row=0, column=1)  # ustawia nowy przycisk
+            self.runBtn.grid(row=1, column=1)  # ustawia nowy przycisk
         elif option == "Środkowo-p pierścień LP":
             self.optionVal = option
-            self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="CHECK/REZULTAT", command=self.drawplot,
+            self.runBtn.grid_forget()  # usuwa istniejący przycisk
+            self.runBtn.config(text="CHECK/REZULTAT", command=self.drawplot,
                                  font="Calibri 20")  # tworzy nowy przycisk
-            self.button.grid(row=0, column=1)  # ustawia nowy przycisk
+            self.runBtn.grid(row=1, column=1)  # ustawia nowy przycisk
         elif option == "Środkowo-p pierścień HP":
             self.optionVal = option
-            self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="CHECK/REZULTAT", command=self.drawplot,
+            self.runBtn.grid_forget()  # usuwa istniejący przycisk
+            self.runBtn.config(text="CHECK/REZULTAT", command=self.drawplot,
                                  font="Calibri 20")  # tworzy nowy przycisk
-            self.button.grid(row=0, column=1)  # ustawia nowy przycisk
+            self.runBtn.grid(row=1, column=1)  # ustawia nowy przycisk
         else:
             """Jeżeli wybrana opcja z menu nie została jeszcze zaimplementowana, usuń przycisk"""
             print("Błąd w option")
@@ -164,6 +155,7 @@ class Filtracja:
         myLabel = Label(root, text=self.clicked.get()).grid(row=3, column=1)
 
     def chooseMask(self, test):
+        print("Hi Honey! " + test)
         if test == "Dolnoprzepustowa Okrągła":
             return self.center * self.idealFilterLP(self.rozmiarm, self.img.shape)
         elif test == "Górnoprzepustowa Okrągła":
@@ -191,12 +183,14 @@ class Filtracja:
 
 
     def drawplot(self):
-        self.rozmiarm = self.slider1.get()
+        self.rozmiarm = self.maskSlider.get()
         fig = plt.figure(figsize=(7, 7), dpi=200)
         # fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
 
+
         self.img = cv2.imread(self.imaddr, 0)
-        plt.subplot2grid((4, 5), (0, 0)), plt.imshow(self.img, "gray"), plt.title("Oryg. obraz")
+        plt.subplot2grid((3, 3), (0, 0)), plt.imshow(self.img, "gray"), plt.title("Oryg. obraz")
+        self.tick_remover()
         # plot1 = fig.add_subplot(161)
         # plot1.imshow(img, "gray")
 
@@ -204,22 +198,26 @@ class Filtracja:
         # plt.subplot(162), plt.imshow(np.log(1 + np.abs(original)), "gray"), plt.title("Spektrum")
 
         self.center = np.fft.fftshift(original)
-        plt.subplot2grid((4, 5), (0, 1), colspan=1), plt.imshow(np.log(1 + np.abs(self.center)), "gray"), plt.title(
-            "Spektrum")
+        plt.subplot2grid((3, 3), (1, 0), colspan=1), plt.imshow(np.log(1 + np.abs(self.center)), "gray"), plt.title(
+            "Amplituda")
+        self.tick_remover()
 
         angle = np.angle(self.center)
-        plt.subplot2grid((4, 5), (0, 2), colspan=1), plt.imshow(np.log(1 + np.abs(angle)), "gray"), plt.title("Faza")
+        plt.subplot2grid((3, 3), (1, 1), colspan=1), plt.imshow(np.log(1 + np.abs(angle)), "gray"), plt.title("Faza")
+        self.tick_remover()
 
         LowPassCenter = self.chooseMask(self.optionVal)
-        plt.subplot2grid((4, 5), (0, 3), colspan=1), plt.imshow(np.log(1 + np.abs(LowPassCenter)), "gray"), plt.title(
+        plt.subplot2grid((3, 3), (1, 2), colspan=1), plt.imshow(np.log(1 + np.abs(LowPassCenter)), "gray"), plt.title(
             "Filtr")
+        self.tick_remover()
 
         LowPass = np.fft.ifftshift(LowPassCenter)
         # plt.subplot(155), plt.imshow(np.log(1 + np.abs(LowPass)), "gray"), plt.title("Decentralizacja")
 
         inverse_LowPass = np.fft.ifft2(LowPass)
-        plt.subplot2grid((4, 5), (1, 0), colspan=1), plt.imshow(np.abs(inverse_LowPass), "gray"), plt.title(
+        plt.subplot2grid((3, 3), (0, 1), colspan=1), plt.imshow(np.abs(inverse_LowPass), "gray"), plt.title(
             "Obraz wynik.")
+        self.tick_remover()
 
         plt.tight_layout()
 
@@ -228,7 +226,13 @@ class Filtracja:
         canvas.draw()
 
         # placing the canvas on the Tkinter window
-        canvas.get_tk_widget().grid(row=5, column=1)
+        canvas.get_tk_widget().pack()
+
+    def tick_remover(self):
+        plt.tick_params(left=False,
+                        bottom=False,
+                        labelleft=False,
+                        labelbottom=False)
 
     def distance(self, point1, point2):
         return math.sqrt((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2)
