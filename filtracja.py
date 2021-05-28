@@ -1,9 +1,8 @@
-# TODO Znaleźć sposób na poprawne zastosowanie i odczytywanie textfield
-
 from tkinter import *
 from tkinter.messagebox import showinfo
 
-from tkinter import filedialog as fd
+from tkinter import filedialog as fd, font
+from tkinter import font as tkFont
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg,
                                                NavigationToolbar2Tk)
@@ -20,513 +19,229 @@ class Filtracja:
 
     def __init__(self, window, imaddr):
 
-
         """Metoda init w tym wypadku służy do budowania całego GUI"""
+        self.optionVal = None
+        self.center = None
         self.rozmiarm = 50
-        # self.drop2 = None
-        self.button = Button(window, text="CHECK/REZULTAT", font="Calibri 20")
         self.window = window
+        # self.drop2 = None
+        self.plotframe = Frame(self.window)
+        self.plotframe.pack(side="top")
+
+        frame = LabelFrame(window, text="Przyciski kontrolne", padx=5, pady=10)
+
+        frame.pack(padx=10, pady=10, side="bottom")
+        self.runBtn = Button(frame, text="Pokaż wynik", font="Calibri 20")
+
         # self.filename = ""
         self.imaddr = imaddr
         # self.box = Entry(window)
 
-        self.button2 = Button(window, text="OTWÓRZ PLIK", font="Calibri 20", command=self.select_file)
-        self.dropLab = Label(root, font="Calibri 20", text="WYBÓR MASKI")
+        self.fileBtn = Button(frame, text="Otwórz plik", font="Calibri 20", command=self.select_file)
+        self.dropLab = Label(frame, font="Calibri 20", text="Wybór maski")
 
-        self.slider1 = Scale(window, from_=0, to=100, tickinterval=25, length=300, orient=HORIZONTAL, font="Calibri 16")
-        self.slider1.set(50)
-        self.button3 = Button(window, text="ZAPISZ SLIDER", font="Calibri 20", command=self.show_values, )  #
-
-
-        # self.drop2Lab = Label(root, text="WYBÓR KRZTAŁTU", font="Calibri 20")
-
+        self.maskSlider = Scale(frame, from_=0, to=100, tickinterval=25, length=300, orient=HORIZONTAL, font="Calibri 16")
+        maskLab = Label(frame, font="Calibri 20", text="Rozmiar maski")
+        self.maskSlider.set(50)
         self.clicked = StringVar()
         self.clicked2 = StringVar()
         self.options = ("Dolnoprzepustowa Okrągła", "Górnoprzepustowa Okrągła", "Dolnoprzepustowa Kwadratowa",
                         "Górnoprzepustowa Kwadratowa", "Gaussian LP",
                         "Gaussian HP", "Butterworth LP", "Butterworth HP",
                         "Środkowo-p kwadrat LP", "Środkowo-p kwadrat HP", "Środkowo-p pierścień LP",
-                        "Środkowo-p pierścień HP",)
-        self.drop = OptionMenu(window, self.clicked, *self.options, command=self.switch)
+                        "Środkowo-p pierścień HP")
+        self.drop = OptionMenu(frame, self.clicked, *self.options, command=self.switch)
         # self.drop2 = OptionMenu(window, self.clicked2, "Okrągły", "Kwadratowy")
-        self.dropLab.grid(row=1, column=0)
-        self.drop.grid(row=1, column=1)
+        helv20 = tkFont.Font(family='Helvetica', size=20)
+        menu = root.nametowidget(self.drop.menuname)
+        menu.config(font=helv20)  # Set the dropdown menu's font
 
-        self.slider1.grid(row=3, column=0)
-        # self.drop2Lab.grid(row=5, column=0)
-        # self.drop2.grid(row=5, column=1)
         self.drop.config(font="Calibri 20")
-        # self.drop2.config(font="Calibri 20")
-        
-        # self.drop2Lab.grid(row=2, column=0)
-        # self.drop2.grid(row=2, column=1)
+        self.dropLab.grid(row=0, column=2, padx=2)
+        self.drop.grid(row=1, column=2, padx=2)
+        maskLab.grid(row=0, column=3 )
+        self.maskSlider.grid(row=1, column=3, padx=2)
+        self.fileBtn.grid(row=1, column=0, padx=2)
+        self.runBtn.grid(row=1, column=1, padx=2)
 
-        # self.box.pack()
-        self.button3.grid(row=4, column=0)
-        self.button2.grid(row=0, column=0)
-        self.button.grid(row=0, column=1)
-        # self.button3 = Button(root, text="Show selection", command=self.show).grid(row=3, column=0)
+
+        self.canvas = None
+
         self.n = 0
         self.textfield = None
+        self.img = None
 
     def show_values(self):
-        self.rozmiarm = self.slider1.get()
+        self.rozmiarm = self.maskSlider.get()
 
     def switch(self, value):
         """Metoda służy do przypisywania metod z odpowiednimi maskami do odpowiadających im wyborów z OptionMenu"""
         option = self.clicked.get()
         print(value)
         if option == "Dolnoprzepustowa Okrągła":
-            print("LP KOLO")
-            self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="CHECK/REZULTAT", command=self.plotLP, font="Calibri 20")  # tworzy nowy przycisk
-            self.button.grid(row=0, column=1)  # ustawia nowy przycisk
+            self.optionVal = option
+            self.runBtn.grid_forget()  # usuwa istniejący przycisk
+            self.runBtn.config(text="CHECK/REZULTAT", command=self.drawplot,
+                                 font="Calibri 20")  # tworzy nowy przycisk
+            self.runBtn.grid(row=1, column=1)  # ustawia nowy przycisk
         elif option == "Górnoprzepustowa Okrągła":
-            print("HP KOLO")
-            self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="CHECK/REZULTAT", command=self.plotHP, font="Calibri 20")  # tworzy nowy przycisk
-            self.button.grid(row=0, column=1)  # ustawia nowy przycisk
+            self.optionVal = option
+            self.runBtn.grid_forget()  # usuwa istniejący przycisk
+            self.runBtn.config(text="CHECK/REZULTAT", command=self.drawplot,
+                                 font="Calibri 20")  # tworzy nowy przycisk
+            self.runBtn.grid(row=1, column=1)  # ustawia nowy przycisk
         elif option == "Dolnoprzepustowa Kwadratowa":
-            print("LP KWADRAT")
-            self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="CHECK/REZULTAT", command=self.plotLPS, font="Calibri 20")  # tworzy nowy przycisk
-            self.button.grid(row=0, column=1)  # ustawia nowy przycisk
+            self.optionVal = option
+            self.runBtn.grid_forget()  # usuwa istniejący przycisk
+            self.runBtn.config(text="CHECK/REZULTAT", command=self.drawplot,
+                                 font="Calibri 20")  # tworzy nowy przycisk
+            self.runBtn.grid(row=1, column=1)  # ustawia nowy przycisk
         elif option == "Górnoprzepustowa Kwadratowa":
-            print("HP KOLO")
-            self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="CHECK/REZULTAT", command=self.plotHPS, font="Calibri 20")  # tworzy nowy przycisk
-            self.button.grid(row=0, column=1)  # ustawia nowy przycisk
+            self.optionVal = option
+            self.runBtn.grid_forget()  # usuwa istniejący przycisk
+            self.runBtn.config(text="CHECK/REZULTAT", command=self.drawplot,
+                                 font="Calibri 20")  # tworzy nowy przycisk
+            self.runBtn.grid(row=1, column=1)  # ustawia nowy przycisk
         elif option == "Gaussian LP":
-            print("GAUSS LP")
-            self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="CHECK/REZULTAT", command=self.plotGaussLP, font="Calibri 20")  # tworzy nowy przycisk
-            self.button.grid(row=0, column=1)  # ustawia nowy przycisk
+            self.optionVal = option
+            self.runBtn.grid_forget()  # usuwa istniejący przycisk
+            self.runBtn.config(text="CHECK/REZULTAT", command=self.drawplot,
+                                 font="Calibri 20")  # tworzy nowy przycisk
+            self.runBtn.grid(row=1, column=1)  # ustawia nowy przycisk
         elif option == "Gaussian HP":
-            print("GAUSS HP")
-            self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="CHECK/REZULTAT", command=self.plotGaussHP, font="Calibri 20")  # tworzy nowy przycisk
-            self.button.grid(row=0, column=1)  # ustawia nowy przycisk
+            self.optionVal = option
+            self.runBtn.grid_forget()  # usuwa istniejący przycisk
+            self.runBtn.config(text="CHECK/REZULTAT", command=self.drawplot,
+                                 font="Calibri 20")  # tworzy nowy przycisk
+            self.runBtn.grid(row=1, column=1)  # ustawia nowy przycisk
         elif option == "Butterworth LP":
-            print("BUTTER LP")
-            # Label(self.window, text="Podaj n=").grid(row=2, column=0)
-            # self.textfield = Text(self.window, height=1, width=3)
-            # self.textfield.grid(row=2, column=1, sticky=W)
-            # self.n = self.textfield.get("1.0",'end-1c')
-            self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="CHECK/REZULTAT", command=self.plotButterLP, font="Calibri 20")  # tworzy nowy przycisk
-            self.button.grid(row=0, column=1)  # ustawia nowy przycisk
+            self.optionVal = option
+            self.runBtn.grid_forget()  # usuwa istniejący przycisk
+            self.runBtn.config(text="CHECK/REZULTAT", command=self.drawplot,
+                                 font="Calibri 20")  # tworzy nowy przycisk
+            self.runBtn.grid(row=1, column=1)  # ustawia nowy przycisk
         elif option == "Butterworth HP":
-            print("BUTTER HP")
-            self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="CHECK/REZULTAT", command=self.plotButterHP, font="Calibri 20")  # tworzy nowy przycisk
-            self.button.grid(row=0, column=1)  # ustawia nowy przycisk
+            self.optionVal = option
+            self.runBtn.grid_forget()  # usuwa istniejący przycisk
+            self.runBtn.config(text="CHECK/REZULTAT", command=self.drawplot,
+                                 font="Calibri 20")  # tworzy nowy przycisk
+            self.runBtn.grid(row=1, column=1)  # ustawia nowy przycisk
         elif option == "Środkowo-p kwadrat LP":
-            print("ŚrodekKwadratLP")
-            self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="CHECK/REZULTAT", command=self.plotMPSqrLP, font="Calibri 20")  # tworzy nowy przycisk
-            self.button.grid(row=0, column=1)  # ustawia nowy przycisk
+            self.optionVal = option
+            self.runBtn.grid_forget()  # usuwa istniejący przycisk
+            self.runBtn.config(text="CHECK/REZULTAT", command=self.drawplot,
+                                 font="Calibri 20")  # tworzy nowy przycisk
+            self.runBtn.grid(row=1, column=1)  # ustawia nowy przycisk
         elif option == "Środkowo-p kwadrat HP":
-            print("ŚrodekkwadratHP")
-            self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="CHECK/REZULTAT", command=self.plotMPSqrHP, font="Calibri 20")  # tworzy nowy przycisk
-            self.button.grid(row=0, column=1)  # ustawia nowy przycisk
+            self.optionVal = option
+            self.runBtn.grid_forget()  # usuwa istniejący przycisk
+            self.runBtn.config(text="CHECK/REZULTAT", command=self.drawplot,
+                                 font="Calibri 20")  # tworzy nowy przycisk
+            self.runBtn.grid(row=1, column=1)  # ustawia nowy przycisk
         elif option == "Środkowo-p pierścień LP":
-            print("ŚrodekPierścieńLP")
-            self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="CHECK/REZULTAT", command=self.plotMPCirLP, font="Calibri 20")  # tworzy nowy przycisk
-            self.button.grid(row=0, column=1)  # ustawia nowy przycisk
+            self.optionVal = option
+            self.runBtn.grid_forget()  # usuwa istniejący przycisk
+            self.runBtn.config(text="CHECK/REZULTAT", command=self.drawplot,
+                                 font="Calibri 20")  # tworzy nowy przycisk
+            self.runBtn.grid(row=1, column=1)  # ustawia nowy przycisk
         elif option == "Środkowo-p pierścień HP":
-            print("ŚrodekPierścieńHP")
-            self.button.grid_forget()  # usuwa istniejący przycisk
-            self.button = Button(root, text="CHECK/REZULTAT", command=self.plotMPCirHP, font="Calibri 20")  # tworzy nowy przycisk
-            self.button.grid(row=0, column=1)  # ustawia nowy przycisk
+            self.optionVal = option
+            self.runBtn.grid_forget()  # usuwa istniejący przycisk
+            self.runBtn.config(text="CHECK/REZULTAT", command=self.drawplot,
+                                 font="Calibri 20")  # tworzy nowy przycisk
+            self.runBtn.grid(row=1, column=1)  # ustawia nowy przycisk
         else:
             """Jeżeli wybrana opcja z menu nie została jeszcze zaimplementowana, usuń przycisk"""
             print("Błąd w option")
             # self.button.grid_forget()
 
-
     def show(self):
         myLabel = Label(root, text=self.clicked.get()).grid(row=3, column=1)
 
-    def plotLP(self):
-        fig = plt.figure(figsize=(7,7), dpi=200)
+    def chooseMask(self, test):
+        print("Hi Honey! " + test)
+        if test == "Dolnoprzepustowa Okrągła":
+            return self.center * self.idealFilterLP(self.rozmiarm, self.img.shape)
+        elif test == "Górnoprzepustowa Okrągła":
+            return self.center * self.idealFilterHP(self.rozmiarm, self.img.shape)
+        elif test == "Dolnoprzepustowa Kwadratowa":
+            return self.center * self.squareLP(self.rozmiarm, self.img.shape)
+        elif test == "Górnoprzepustowa Kwadratowa":
+            return self.center * self.squareHP(self.rozmiarm, self.img.shape)
+        elif test == "Gaussian LP":
+            return self.center * self.gaussianLP(self.rozmiarm, self.img.shape)
+        elif test == "Gaussian HP":
+            return self.center * self.gaussianHP(self.rozmiarm, self.img.shape)
+        elif test == "Butterworth LP":
+            return self.center * self.butterworthLP(self.rozmiarm, self.img.shape, 20)
+        elif test == "Butterworth HP":
+            return self.center * self.butterworthHP(self.rozmiarm, self.img.shape, 20)
+        elif test == "Środkowo-p kwadrat LP":
+            return self.center * self.mediumLP1(self.rozmiarm, self.img.shape, 20)
+        elif test == "Środkowo-p kwadrat HP":
+            return self.center * self.mediumHP1(self.rozmiarm, self.img.shape, 20)
+        elif test == "Środkowo-p pierścień LP":
+            return self.center * self.mediumLP2(self.rozmiarm, self.img.shape, 20)
+        elif test == "Środkowo-p pierścień HP":
+            return self.center * self.mediumHP2(self.rozmiarm, self.img.shape, 20)
+
+
+    def drawplot(self):
+        if self.canvas is not None:
+            self.plotframe.destroy()
+            self.plotframe = Frame(self.window)
+            self.plotframe.pack(side="top")
+
+        self.rozmiarm = self.maskSlider.get()
+        fig = plt.figure(figsize=(7, 7), dpi=120)
         # fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
 
-        img = cv2.imread(self.imaddr, 0)
-        plt.subplot2grid((4, 5), (0, 0)), plt.imshow(img, "gray"), plt.title("Oryg. obraz")
+
+        self.img = cv2.imread(self.imaddr, 0)
+        plt.subplot2grid((2, 2), (0, 0)), plt.imshow(self.img, "gray"), plt.title("Oryg. obraz")
+        self.tick_remover()
         # plot1 = fig.add_subplot(161)
         # plot1.imshow(img, "gray")
 
-        original = np.fft.fft2(img)
+        original = np.fft.fft2(self.img)
         # plt.subplot(162), plt.imshow(np.log(1 + np.abs(original)), "gray"), plt.title("Spektrum")
 
-        center = np.fft.fftshift(original)
-        plt.subplot2grid((4, 5), (0, 1), colspan=1), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Spektrum")
+        self.center = np.fft.fftshift(original)
+        plt.subplot2grid((3, 3), (2, 0), colspan=1), plt.imshow(np.log(1 + np.abs(self.center)), "gray"), plt.title(
+            "Amplituda")
+        self.tick_remover()
 
-        angle = np.angle(center)
-        plt.subplot2grid((4, 5), (0, 2), colspan=1), plt.imshow(np.log(1 + np.abs(angle)), "gray"), plt.title("Faza")
+        angle = np.angle(self.center)
+        plt.subplot2grid((3, 3), (2, 1), colspan=1), plt.imshow(np.log(1 + np.abs(angle)), "gray"), plt.title("Faza")
+        self.tick_remover()
 
-        LowPassCenter = center * self.idealFilterLP(self.rozmiarm, img.shape)
-        plt.subplot2grid((4, 5), (0, 3), colspan=1), plt.imshow(np.log(1 + np.abs(LowPassCenter)), "gray"), plt.title(
+        LowPassCenter = self.chooseMask(self.optionVal)
+        plt.subplot2grid((3, 3), (2, 2), colspan=1), plt.imshow(np.log(1 + np.abs(LowPassCenter)), "gray"), plt.title(
             "Filtr")
+        self.tick_remover()
 
         LowPass = np.fft.ifftshift(LowPassCenter)
         # plt.subplot(155), plt.imshow(np.log(1 + np.abs(LowPass)), "gray"), plt.title("Decentralizacja")
 
         inverse_LowPass = np.fft.ifft2(LowPass)
-        plt.subplot2grid((4, 5), (1, 0), colspan=1), plt.imshow(np.abs(inverse_LowPass), "gray"), plt.title("Obraz wynik.")
+        plt.subplot2grid((2, 2), (0, 1), colspan=1), plt.imshow(np.abs(inverse_LowPass), "gray"), plt.title(
+            "Obraz wynik.")
+        self.tick_remover()
 
-        plt.tight_layout()
+        # plt.tight_layout()
 
-        canvas = FigureCanvasTkAgg(fig,
-                                   master=root)
-        canvas.draw()
+        self.canvas = FigureCanvasTkAgg(fig,
+                                   master=self.plotframe)
+        self.canvas.draw()
 
         # placing the canvas on the Tkinter window
-        canvas.get_tk_widget().grid(row=5, column=1)
-
-
-
-    def plotHP(self):
-        fig = plt.figure(figsize=(6.4 * 5, 4.8 * 5), constrained_layout=False)
-        fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
-
-        img = cv2.imread(self.imaddr, 0)
-        plt.subplot(151), plt.imshow(img, "gray"), plt.title("Oryginalny obraz")
-
-        original = np.fft.fft2(img)
-        # plt.subplot(162), plt.imshow(np.log(1 + np.abs(original)), "gray"), plt.title("Spectrum")
-
-        center = np.fft.fftshift(original)
-        plt.subplot(152), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Spektrum w centrum")
-
-        angle = np.angle(center)
-        plt.subplot(153), plt.imshow(np.log(1 + np.abs(angle)), "gray"), plt.title("Faza")
-
-        # HighPass = self.idealFilterHP(self.rozmiarm, img.shape)
-        # plt.subplot(154), plt.imshow(np.abs(HighPass), "gray"), plt.title("Filtr górnoprzepustowy")
-
-        HighPassCenter = center * self.idealFilterHP(self.rozmiarm, img.shape)
-        plt.subplot(154), plt.imshow(np.log(1 + np.abs(HighPassCenter)), "gray"), plt.title(
-            "Filtr górnoprzepustowy")
-
-        HighPass = np.fft.ifftshift(HighPassCenter)
-        # plt.subplot(155), plt.imshow(np.log(1 + np.abs(HighPass)), "gray"), plt.title("Decentralize")
-
-        inverse_HighPass = np.fft.ifft2(HighPass)
-        plt.subplot(155), plt.imshow(np.abs(inverse_HighPass), "gray"), plt.title("Przetworzony obraz")
-
-        plt.show()
-
-    def plotLPS(self):
-        fig = plt.figure(figsize=(6.4 * 5, 4.8 * 5), constrained_layout=False)
-        fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
-
-        img = cv2.imread(self.imaddr, 0)
-        plt.subplot(151), plt.imshow(img, "gray"), plt.title("Oryginalny obraz")
-
-        original = np.fft.fft2(img)
-        # plt.subplot(162), plt.imshow(np.log(1 + np.abs(original)), "gray"), plt.title("Spektrum")
-
-        center = np.fft.fftshift(original)
-        plt.subplot(152), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Spektrum w centrum")
-
-        angle = np.angle(center)
-        plt.subplot(153), plt.imshow(np.log(1 + np.abs(angle)), "gray"), plt.title("Faza")
-
-        LowPassCenter = center * self.squareLP(self.rozmiarm, img.shape)
-        plt.subplot(154), plt.imshow(np.log(1 + np.abs(LowPassCenter)), "gray"), plt.title(
-            "Filtr dolnoprzepustowy")
-
-        LowPass = np.fft.ifftshift(LowPassCenter)
-        # plt.subplot(165), plt.imshow(np.log(1 + np.abs(LowPass)), "gray"), plt.title("Decentralizacja")
-
-        inverse_LowPass = np.fft.ifft2(LowPass)
-        plt.subplot(155), plt.imshow(np.abs(inverse_LowPass), "gray"), plt.title("Przetworzony obraz")
-
-        plt.show()
-
-    def plotHPS(self):
-        fig = plt.figure(figsize=(6.4 * 5, 4.8 * 5), constrained_layout=False)
-        fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
-
-        img = cv2.imread(self.imaddr, 0)
-        plt.subplot(151), plt.imshow(img, "gray"), plt.title("Oryginalny obraz")
-
-        original = np.fft.fft2(img)
-        # plt.subplot(162), plt.imshow(np.log(1 + np.abs(original)), "gray"), plt.title("Spectrum")
-
-        center = np.fft.fftshift(original)
-        plt.subplot(152), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Spektrum w centrum")
-
-        angle = np.angle(center)
-        plt.subplot(153), plt.imshow(np.log(1 + np.abs(angle)), "gray"), plt.title("Faza")
-        
-        # HighPass = self.squareHP(self.rozmiarm, img.shape)
-        # plt.subplot(154), plt.imshow(np.abs(HighPass), "gray"), plt.title("High Pass Filter")
-
-        HighPassCenter = center * self.squareHP(self.rozmiarm, img.shape)
-        plt.subplot(154), plt.imshow(np.log(1 + np.abs(HighPassCenter)), "gray"), plt.title(
-            "Filtr górnoprzepustowy")
-
-        HighPass = np.fft.ifftshift(HighPassCenter)
-        # plt.subplot(154), plt.imshow(np.log(1 + np.abs(HighPass)), "gray"), plt.title("Decentralize")
-
-        inverse_HighPass = np.fft.ifft2(HighPass)
-        plt.subplot(155), plt.imshow(np.abs(inverse_HighPass), "gray"), plt.title("Przetworzony obraz")
-
-        plt.show()
-
-    def plotGaussLP(self):
-        fig = plt.figure(figsize=(6.4 * 5, 4.8 * 5), constrained_layout=False)
-        fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
-
-        img = cv2.imread(self.imaddr, 0)
-        plt.subplot(151), plt.imshow(img, "gray"), plt.title("Oryginalny obraz")
-
-        original = np.fft.fft2(img)
-        # plt.subplot(162), plt.imshow(np.log(1 + np.abs(original)), "gray"), plt.title("Spectrum")
-
-        center = np.fft.fftshift(original)
-        plt.subplot(152), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Spektrum w centrum")
-
-        angle = np.angle(center)
-        plt.subplot(153), plt.imshow(np.log(1 + np.abs(angle)), "gray"), plt.title("Faza")
-
-        # LowPass = self.gaussianLP(50, img.shape)
-        # plt.subplot(154), plt.imshow(np.abs(LowPass), "gray"), plt.title("Low Pass Filter")
-
-        LowPassCenter = center * self.gaussianLP(self.rozmiarm, img.shape)
-        plt.subplot(154), plt.imshow(np.log(1 + np.abs(LowPassCenter)), "gray"), plt.title(
-            "Filtr dolnoprzepustowy")
-
-        LowPass = np.fft.ifftshift(LowPassCenter)
-        # plt.subplot(154), plt.imshow(np.log(1 + np.abs(LowPass)), "gray"), plt.title("Decentralize")
-
-        inverse_LowPass = np.fft.ifft2(LowPass)
-        plt.subplot(155), plt.imshow(np.abs(inverse_LowPass), "gray"), plt.title("Przetworzony obraz")
-
-        plt.show()
-
-    def plotGaussHP(self):
-        fig = plt.figure(figsize=(6.4 * 5, 4.8 * 5), constrained_layout=False)
-        fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
-
-        img = cv2.imread(self.imaddr, 0)
-        plt.subplot(151), plt.imshow(img, "gray"), plt.title("Oryginalny obraz")
-
-        original = np.fft.fft2(img)
-        # plt.subplot(162), plt.imshow(np.log(1 + np.abs(original)), "gray"), plt.title("Spectrum")
-
-        center = np.fft.fftshift(original)
-        plt.subplot(152), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Spektrum w centrum")
-
-        angle = np.angle(center)
-        plt.subplot(153), plt.imshow(np.log(1 + np.abs(angle)), "gray"), plt.title("Faza")
-
-        # HighPass = self.gaussianHP(50, img.shape)
-        # plt.subplot(153), plt.imshow(HighPass, "gray"), plt.title("Butterworth High Pass Filter (n=20)")
-
-        HighPassCenter = center * self.gaussianHP(self.rozmiarm, img.shape)
-        plt.subplot(154), plt.imshow(np.log(1 + np.abs(HighPassCenter)), "gray"), plt.title(
-            "Filtr góroprzepustowy")
-
-        HighPass = np.fft.ifftshift(HighPassCenter)
-        # plt.subplot(154), plt.imshow(np.log(1 + np.abs(HighPass)), "gray"), plt.title("Decentralize")
-
-        inverse_HighPass = np.fft.ifft2(HighPass)
-        plt.subplot(155), plt.imshow(np.abs(inverse_HighPass), "gray"), plt.title("Przetworzony obraz")
-
-        plt.show()
-
-    def plotButterLP(self):
-        # print("DZIAD: ", self.n)
-        # # self.n = self.textfield.get(1)
-        fig = plt.figure(figsize=(6.4 * 5, 4.8 * 5), constrained_layout=False)
-        fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
-
-        img = cv2.imread(self.imaddr, 0)
-        plt.subplot(151), plt.imshow(img, "gray"), plt.title("Oryginalny obraz")
-
-        original = np.fft.fft2(img)
-        # plt.subplot(162), plt.imshow(np.log(1 + np.abs(original)), "gray"), plt.title("Spectrum")
-
-        center = np.fft.fftshift(original)
-        plt.subplot(152), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Spektrum w centrum")
-
-        angle = np.angle(center)
-        plt.subplot(153), plt.imshow(np.log(1 + np.abs(angle)), "gray"), plt.title("Faza")
-
-        # LowPass = self.butterworthLP(50, img.shape, 20)
-        # plt.subplot(154), plt.imshow(np.abs(LowPass), "gray"), plt.title("Low Pass Filter")
-
-        LowPassCenter = center * self.butterworthLP(self.rozmiarm, img.shape, 20)
-        plt.subplot(154), plt.imshow(np.log(1 + np.abs(LowPassCenter)), "gray"), plt.title(
-            "Filtr dolnoprzepustowy")
-
-        LowPass = np.fft.ifftshift(LowPassCenter)
-        # plt.subplot(154), plt.imshow(np.log(1 + np.abs(LowPass)), "gray"), plt.title("Decentralize")
-
-        inverse_LowPass = np.fft.ifft2(LowPass)
-        plt.subplot(155), plt.imshow(np.abs(inverse_LowPass), "gray"), plt.title("Przetworzony obraz")
-
-        plt.show()
-
-    def plotButterHP(self):
-        fig = plt.figure(figsize=(6.4 * 5, 4.8 * 5), constrained_layout=False)
-        fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
-
-        img = cv2.imread(self.imaddr, 0)
-        plt.subplot(151), plt.imshow(img, "gray"), plt.title("Oryginalny obraz")
-
-        original = np.fft.fft2(img)
-        # plt.subplot(162), plt.imshow(np.log(1 + np.abs(original)), "gray"), plt.title("Spectrum")
-
-        center = np.fft.fftshift(original)
-        plt.subplot(152), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Spektrum w centrum")
-
-        angle = np.angle(center)
-        plt.subplot(153), plt.imshow(np.log(1 + np.abs(angle)), "gray"), plt.title("Faza")
-
-        # HighPass = self.butterworthHP(50, img.shape, 20)
-        # plt.subplot(153), plt.imshow(np.abs(HighPass), "gray"), plt.title("High Pass Filter")
-
-        HighPassCenter = center * self.butterworthHP(self.rozmiarm, img.shape, 20)
-        plt.subplot(154), plt.imshow(np.log(1 + np.abs(HighPassCenter)), "gray"), plt.title(
-            "Filtr górnoprzepustowy")
-
-        HighPass = np.fft.ifftshift(HighPassCenter)
-        # plt.subplot(154), plt.imshow(np.log(1 + np.abs(HighPass)), "gray"), plt.title("Decentralize")
-
-        inverse_HighPass = np.fft.ifft2(HighPass)
-        plt.subplot(155), plt.imshow(np.abs(inverse_HighPass), "gray"), plt.title("Przetworzony obraz")
-
-        plt.show()
-
-    def plotMPCirLP(self):
-        fig = plt.figure(figsize=(6.4 * 5, 4.8 * 5), constrained_layout=False)
-        fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
-
-        img = cv2.imread(self.imaddr, 0)
-        plt.subplot(151), plt.imshow(img, "gray"), plt.title("Oryginalny obraz")
-
-        original = np.fft.fft2(img)
-        # plt.subplot(162), plt.imshow(np.log(1 + np.abs(original)), "gray"), plt.title("Spectrum")
-
-        center = np.fft.fftshift(original)
-        plt.subplot(152), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Spektrum w centrum")
-
-        angle = np.angle(center)
-        plt.subplot(153), plt.imshow(np.log(1 + np.abs(angle)), "gray"), plt.title("Faza")
-
-        # LowPass = self.mediumLP1(50, img.shape, 20)
-        # plt.subplot(153), plt.imshow(np.abs(LowPass), "gray"), plt.title("Low Pass Filter")
-
-        LowPassCenter = center * self.mediumLP1(self.rozmiarm, img.shape, 20)
-        plt.subplot(154), plt.imshow(np.log(1 + np.abs(LowPassCenter)), "gray"), plt.title(
-            "Filtr dolnoprzepustowy")
-
-        LowPass = np.fft.ifftshift(LowPassCenter)
-        # plt.subplot(154), plt.imshow(np.log(1 + np.abs(LowPass)), "gray"), plt.title("Decentralize")
-
-        inverse_LowPass = np.fft.ifft2(LowPass)
-        plt.subplot(155), plt.imshow(np.abs(inverse_LowPass), "gray"), plt.title("Przetworzony obraz")
-
-        plt.show()
-
-    def plotMPSqrLP(self):
-        fig = plt.figure(figsize=(6.4 * 5, 4.8 * 5), constrained_layout=False)
-        fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
-
-        img = cv2.imread(self.imaddr, 0)
-        plt.subplot(151), plt.imshow(img, "gray"), plt.title("Oryginalny obraz")
-
-        original = np.fft.fft2(img)
-        # plt.subplot(162), plt.imshow(np.log(1 + np.abs(original)), "gray"), plt.title("Spectrum")
-
-        center = np.fft.fftshift(original)
-        plt.subplot(152), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Spektrum w centrum")
-
-        angle = np.angle(center)
-        plt.subplot(153), plt.imshow(np.log(1 + np.abs(angle)), "gray"), plt.title("Faza")
-
-        # LowPass = self.mediumLP2(50, img.shape, 20)
-        # plt.subplot(153), plt.imshow(np.abs(LowPass), "gray"), plt.title("Low Pass Filter")
-
-        LowPassCenter = center * self.mediumLP2(self.rozmiarm, img.shape, 20)
-        plt.subplot(154), plt.imshow(np.log(1 + np.abs(LowPassCenter)), "gray"), plt.title(
-            "Filtr dolnoprzepustowy")
-
-        LowPass = np.fft.ifftshift(LowPassCenter)
-        # plt.subplot(154), plt.imshow(np.log(1 + np.abs(LowPass)), "gray"), plt.title("Decentralize")
-
-        inverse_LowPass = np.fft.ifft2(LowPass)
-        plt.subplot(155), plt.imshow(np.abs(inverse_LowPass), "gray"), plt.title("Przetworzony obraz")
-
-        plt.show()
-
-    def plotMPCirHP(self):
-        fig = plt.figure(figsize=(6.4 * 5, 4.8 * 5), constrained_layout=False)
-        fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
-
-        img = cv2.imread(self.imaddr, 0)
-        plt.subplot(151), plt.imshow(img, "gray"), plt.title("Oryginalny obraz")
-
-        original = np.fft.fft2(img)
-        # plt.subplot(162), plt.imshow(np.log(1 + np.abs(original)), "gray"), plt.title("Spectrum")
-
-        center = np.fft.fftshift(original)
-        plt.subplot(152), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Spektrum w centrum")
-
-        angle = np.angle(center)
-        plt.subplot(153), plt.imshow(np.log(1 + np.abs(angle)), "gray"), plt.title("Faza")
-
-        # HighPass = self.mediumHP1(50, img.shape, 20)
-        # plt.subplot(153), plt.imshow(np.abs(HighPass), "gray"), plt.title("Low Pass Filter")
-
-        HighPassCenter = center * self.mediumHP1(self.rozmiarm, img.shape, 20)
-        plt.subplot(154), plt.imshow(np.log(1 + np.abs(HighPassCenter)), "gray"), plt.title(
-            "Filtr górnoprzepustowy")
-
-        HighPass = np.fft.ifftshift(HighPassCenter)
-        # plt.subplot(154), plt.imshow(np.log(1 + np.abs(HighPass)), "gray"), plt.title("Decentralize")
-
-        inverse_HighPass = np.fft.ifft2(HighPass)
-        plt.subplot(155), plt.imshow(np.abs(inverse_HighPass), "gray"), plt.title("Przetworzony obraz")
-
-        plt.show()
-
-    def plotMPSqrHP(self):
-        fig = plt.figure(figsize=(6.4 * 5, 4.8 * 5), constrained_layout=False)
-        fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
-
-        img = cv2.imread(self.imaddr, 0)
-        plt.subplot(151), plt.imshow(img, "gray"), plt.title("Oryginalny obraz")
-
-        original = np.fft.fft2(img)
-        # plt.subplot(162), plt.imshow(np.log(1 + np.abs(original)), "gray"), plt.title("Spectrum")
-
-        center = np.fft.fftshift(original)
-        plt.subplot(152), plt.imshow(np.log(1 + np.abs(center)), "gray"), plt.title("Spektrum w centrum")
-
-        angle = np.angle(center)
-        plt.subplot(153), plt.imshow(np.log(1 + np.abs(angle)), "gray"), plt.title("Faza")
-
-        # HighPass = self.mediumHP2(50, img.shape, 20)
-        # plt.subplot(153), plt.imshow(np.abs(HighPass), "gray"), plt.title("Low Pass Filter")
-
-        HighPassCenter = center * self.mediumHP2(self.rozmiarm, img.shape, 20)
-        plt.subplot(154), plt.imshow(np.log(1 + np.abs(HighPassCenter)), "gray"), plt.title(
-            "Filtr górnoprzepustowy")
-
-        HighPass = np.fft.ifftshift(HighPassCenter)
-        # plt.subplot(154), plt.imshow(np.log(1 + np.abs(HighPass)), "gray"), plt.title("Decentralize")
-
-        inverse_HighPass = np.fft.ifft2(HighPass)
-        plt.subplot(155), plt.imshow(np.abs(inverse_HighPass), "gray"), plt.title("Przetworzony obraz")
-
-        plt.show()
+        self.canvas.get_tk_widget().pack()
+
+    def tick_remover(self):
+        plt.tick_params(left=False,
+                        bottom=False,
+                        labelleft=False,
+                        labelbottom=False)
 
     def distance(self, point1, point2):
         return math.sqrt((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2)
@@ -690,9 +405,11 @@ class Filtracja:
 
         self.rozmiarm = self.rozmiarm
 
+
+
 root = Tk()
-width= root.winfo_screenwidth()
-height= root.winfo_screenheight()
+width = root.winfo_screenwidth()
+height = root.winfo_screenheight()
 root.geometry("%dx%d" % (width, height))
 root.title("Transformator Fouriera")
 
