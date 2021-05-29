@@ -1,26 +1,27 @@
-# Transformata Fouriera
-Program służy co celów dydaktycznych. Umożliwia obserwowanie zmian zachodzących 
-podczas cyfrowej transformacji obrazów przy wykorzystatniu transformaty Fouriera.
+# Fourier transform
+The program is for educational purposes. It allows you to observe the changes
+taking place during the digital image processing using the Fourier transform.
 
-Większość głównych obliczeń pochodzi z następującego źródła:
+Most of the main calculations come from the following source:
 https://hicraigchen.medium.com/digital-image-processing-using-fourier-transform-in-python-bcb49424fd82
 
-##Technologie/biblioteki
+## Used technologies
 - Python 3.9
 - Tkinter
 - matplotlib
 
-##Instrukcja obsługi
-![alt text](https://github.com/MarioShatterhand/fourier-transform-example/blob/master/overview1.jpg?raw=true)
+## How to use
+The first thing to do to run the example is to choose the type of mask 
+you want to apply.
 
-Pierwszym co należy zrobić, aby uruchomić przykład, to wybranie rodzaju maski, jaka ma zostać zastosowana. 
+To do this, select the appropriate option from the drop-down list when 
+selecting the mask. Optionally, you can also change
+the size of the mask applied using the slider, as well as the width of 
+this mask (Note,
+mask width only applies to Gauss, Butterford and Middle mask types).
 
-W tym celu należy wybrać odpowiednią opcję z listy rozwijanej przy wyborze maski. Opcjonalnie można też zmienić
-rozmiar zastosowanej maski przy użyciu suwaka, a także szerokość tej maski (Uwaga,
-szerokość maski dotyczy wyłącznie masek rodzaju: Gauss, Butterford oraz Środkowoprzepustowej).
+After selecting the appropriate settings, press "Show result" to view
+transformations made.
 
-Po wybraniu odpowiednich ustawień należy wcisnąć "Pokaż wynik", aby wyświetlić
-wykonane przekształcenia.
-
-Możliwe jest również wczytanie własnych plików w formacie BMP, do czego służy
-przycisk "Wczytaj obraz". Zaleca się używanie obrazów w skali odcieni szarości
+It is also possible to load your own files in BMP format, for which it is used
+"Load image" button. It's recommended to use grayscale images
