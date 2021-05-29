@@ -13,6 +13,16 @@ https://hicraigchen.medium.com/digital-image-processing-using-fourier-transform-
 - matplotlib
 
 ## How to use
+```
+python3.8.exe -m pip install opencv-contrib-python
+python3.8.exe
+>>> import math
+>>> import numpy as np
+>>> import matplotlib.pyplot as plt
+>>> quit()
+python3.8.exe filtration.py
+```
+
 The first thing to do to run the example is to choose the type of mask 
 you want to apply.
 
