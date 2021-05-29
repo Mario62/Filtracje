@@ -5,12 +5,12 @@ podczas cyfrowej transformacji obrazów przy wykorzystatniu transformaty Fourier
 Większość głównych obliczeń pochodzi z następującego źródła:
 https://hicraigchen.medium.com/digital-image-processing-using-fourier-transform-in-python-bcb49424fd82
 
-##Technologie/biblioteki
+## Technologie/biblioteki
 - Python 3.9
 - Tkinter
 - matplotlib
 
-##Instrukcja obsługi
+## Instrukcja obsługi
 ![alt text](https://github.com/MarioShatterhand/fourier-transform-example/blob/master/overview1.jpg?raw=true)
 
 Pierwszym co należy zrobić, aby uruchomić przykład, to wybranie rodzaju maski, jaka ma zostać zastosowana. 

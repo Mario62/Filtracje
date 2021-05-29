@@ -1,4 +1,6 @@
 # Fourier transform - GUI app
+*Instrukcja w języku polskim: [README](https://github.com/MarioShatterhand/fourier-transform-example/blob/master/README_PL.md)*
+
 The program is for educational purposes. It allows you to observe the changes
 taking place during the digital image processing using the Fourier transform.
 
