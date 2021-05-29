@@ -21,43 +21,33 @@ class Filtracja:
         self.center = None
         self.rozmiarm = 50
         self.maskwidth = 20
+        self.canvas = None
+        self.n = 0
+        self.textfield = None
+        self.img = None
         self.window = window
-        # self.drop2 = None
+        self.imaddr = imaddr
         self.plotframe = Frame(self.window)
         self.plotframe.pack(side="top")
 
         self.frame = LabelFrame(window, text=self.lang.LabelFrame, padx=5, pady=10)
-
-        self.frame.pack(padx=10, pady=10, side="bottom")
         self.runBtn = Button(self.frame, text=self.lang.runBt, font="Calibri 20")
-
-        # self.filename = ""
-        self.imaddr = imaddr
-        # self.box = Entry(window)
-
         self.fileBtn = Button(self.frame, text=self.lang.fileBtn, font="Calibri 20", command=self.select_file)
-        exit = Button(self.frame, text=self.lang.exit, command=self.quit_me)
+        stop_program = Button(self.frame, text=self.lang.exit, command=self.quit_me)
         self.dropLab = Label(self.frame, font="Calibri 20", text=self.lang.dropLab)
-
-        self.maskSlider = Scale(self.frame, from_=0, to=100, tickinterval=25, length=300, orient=HORIZONTAL,
-                                font="Calibri 16")
-        self.maskwidthSlider = Scale(self.frame, from_=0, to=100, tickinterval=25, length=300, orient=HORIZONTAL,
-                                font="Calibri 16")
+        self.maskSlider = Scale(self.frame, from_=0, to=100, tickinterval=25, length=300, orient=HORIZONTAL,font="Calibri 16")
+        self.maskwidthSlider = Scale(self.frame, from_=0, to=100, tickinterval=25, length=300, orient=HORIZONTAL,font="Calibri 16")
         maskLab = Label(self.frame, font="Calibri 20", text=self.lang.maskSlider)
         self.maskwidthLab = Label(self.frame, font="Calibri 20", text=self.lang.maskwidthLab)
-        # langBtn = Button(self.frame, text="zmień język", command=self.change_lang)
-        # langBtn.grid(row=0, column=0)
+
         self.maskSlider.set(50)
         self.maskwidthSlider.set(20)
         self.clicked = StringVar()
         self.clicked2 = StringVar()
         self.options = self.lang.options
-        self.drop = OptionMenu(self.frame, self.clicked, *self.options, command=self.switch)
-        # self.drop2 = OptionMenu(window, self.clicked2, "Okrągły", "Kwadratowy")
-        helv20 = tkFont.Font(family='Helvetica', size=20)
-        menu = window.nametowidget(self.drop.menuname)
-        menu.config(font=helv20)  # Set the dropdown menu's font
 
+        self.drop = OptionMenu(self.frame, self.clicked, *self.options, command=self.switch)
+        self.frame.pack(padx=10, pady=10, side="bottom")
         self.drop.config(font="Calibri 20")
         self.dropLab.grid(row=0, column=2, padx=2)
         self.drop.grid(row=1, column=2, padx=2)
@@ -67,13 +57,11 @@ class Filtracja:
         self.runBtn.grid(row=1, column=1, padx=2)
         self.maskwidthLab.grid(row=0, column=4)
         self.maskwidthSlider.grid(row=1, column=4, padx=2)
-        exit.grid(row=1, column=5)
+        stop_program.grid(row=1, column=5)
 
-        self.canvas = None
-
-        self.n = 0
-        self.textfield = None
-        self.img = None
+        helv20 = tkFont.Font(family='Helvetica', size=20)
+        menu = window.nametowidget(self.drop.menuname)
+        menu.config(font=helv20)
 
     def show_values(self):
         self.rozmiarm = self.maskSlider.get()
@@ -159,8 +147,8 @@ class Filtracja:
             print("Błąd w option")
             self.runBtn.grid_forget()
 
-
     def chooseMask(self, test):
+        """Metoda steruje odniesieniami do metod zwracających maskę"""
         if test == self.lang.test1:
             return self.center * self.idealFilterLP(self.rozmiarm, self.img.shape)
         elif test == self.lang.test2:
@@ -187,6 +175,7 @@ class Filtracja:
             return self.center * self.mediumHP1(self.rozmiarm, self.img.shape, self.maskwidth)
 
     def drawplot(self):
+        """Metoda określa sposób rysowania obrazów przy użyciu matplotlib"""
         if self.canvas is not None:
             self.plotframe.destroy()
             self.plotframe = Frame(self.window)
@@ -239,6 +228,7 @@ class Filtracja:
         self.canvas.get_tk_widget().pack()
 
     def tick_remover(self):
+        """Usuwa skalę z wybranego subplota"""
         plt.tick_params(left=False,
                         bottom=False,
                         labelleft=False,
@@ -390,9 +380,10 @@ class Filtracja:
         return base
 
     def select_file(self):
+        """Umożliwia wczytanie pliku BMP w celu jego przetworzenia"""
         filetypes = (
             ('BMP files', '*.bmp'),
-            ('text files', '*.txt')
+            ('All files', '*')
 
         )
         self.imaddr = fd.askopenfilename(
@@ -415,26 +406,26 @@ class Filtracja:
         self.rozmiarm = self.rozmiarm
 
     def quit_me(self):
+        """Niszczy widok"""
         print('quit')
         self.window.quit()
         self.window.destroy()
 
 
 def quit_me():
+    """Niszczy widok"""
     print('quit')
     root.quit()
     root.destroy()
 
 def change_lang(getlang):
+    """Umożliwia zmianę języka"""
     if getlang == "pl":
         lang = getlang
     else:
         lang = getlang
     quit_me()
     top = Tk()
-    width = top.winfo_screenwidth()
-    height = top.winfo_screenheight()
-    # top.geometry("%dx%d" % (width, height)
     top.attributes('-fullscreen', True)
     if getlang == "pl":
         top.title("Transformacja Fouriera")

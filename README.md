@@ -27,3 +27,5 @@ transformations made.
 
 It is also possible to load your own files in BMP format, for which it is used
 "Load image" button. It's recommended to use grayscale images
+## Example
+![alt text](https://github.com/MarioShatterhand/fourier-transform-example/blob/master/example.jpg?raw=true)
