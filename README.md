@@ -1,4 +1,4 @@
-# Fourier transform
+# Fourier transform - GUI app
 The program is for educational purposes. It allows you to observe the changes
 taking place during the digital image processing using the Fourier transform.
 
