@@ -3,8 +3,7 @@ from tkinter.messagebox import showinfo
 from tkinter import filedialog as fd
 from tkinter import font as tkFont
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg)
-from lang.Lang_PL import Lang_PL
-from lang.Lang_EN import Lang_EN
+from lang.Lang import Lang_EN, Lang_PL
 
 import math
 import cv2
@@ -16,38 +15,71 @@ class Filtracja:
 
     def __init__(self, window, imaddr, lang):
         """Metoda init w tym wypadku służy do budowania całego GUI"""
-        self.lang = lang
+        if lang == "en":
+            self.lang = Lang_EN()
+        else:
+            self.lang = Lang_PL()
+
+        self.option = None
         self.optionVal = None
         self.center = None
         self.rozmiarm = 50
         self.maskwidth = 20
-        self.canvas = None
-        self.n = 0
-        self.textfield = None
-        self.img = None
         self.window = window
-        self.imaddr = imaddr
+        # self.drop2 = None
         self.plotframe = Frame(self.window)
         self.plotframe.pack(side="top")
 
         self.frame = LabelFrame(window, text=self.lang.LabelFrame, padx=5, pady=10)
+
+        self.frame.pack(padx=10, pady=10, side="bottom")
         self.runBtn = Button(self.frame, text=self.lang.runBt, font="Calibri 20")
+
+        # self.filename = ""
+        self.imaddr = imaddr
+        # self.box = Entry(window)
+
         self.fileBtn = Button(self.frame, text=self.lang.fileBtn, font="Calibri 20", command=self.select_file)
-        stop_program = Button(self.frame, text=self.lang.exit, command=self.quit_me)
+        exit = Button(self.frame, text=self.lang.exit, command=self.quit_me)
         self.dropLab = Label(self.frame, font="Calibri 20", text=self.lang.dropLab)
-        self.maskSlider = Scale(self.frame, from_=0, to=100, tickinterval=25, length=300, orient=HORIZONTAL,font="Calibri 16")
-        self.maskwidthSlider = Scale(self.frame, from_=0, to=100, tickinterval=25, length=300, orient=HORIZONTAL,font="Calibri 16")
+
+        self.maskSlider = Scale(self.frame, from_=0, to=100, tickinterval=25, length=300, orient=HORIZONTAL,
+                                font="Calibri 16")
+        self.maskwidthSlider = Scale(self.frame, from_=0, to=100, tickinterval=25, length=300, orient=HORIZONTAL,
+                                     font="Calibri 16")
         maskLab = Label(self.frame, font="Calibri 20", text=self.lang.maskSlider)
         self.maskwidthLab = Label(self.frame, font="Calibri 20", text=self.lang.maskwidthLab)
-
+        # langBtn = Button(self.frame, text="zmień język", command=self.change_lang)
+        # langBtn.grid(row=0, column=0)
         self.maskSlider.set(50)
         self.maskwidthSlider.set(20)
         self.clicked = StringVar()
         self.clicked2 = StringVar()
-        self.options = self.lang.options
-
+        if lang == "en":
+            self.options = {"Low pass Round":
+                                self.roundLPcon, "High pass Round": self.roundHPcon, "Low pass square": self.squareLPcon,
+                            "High pass square": self.squareHPcon, "Gauss LP": self.gaussLPcon,
+                            "Gauss HP": self.gaussHPcon, "Butterworth LP": self.butterLPcon,
+                            "Butterworth HP": self.butterHPcon,
+                            "Middle square LP": self.middlesqLPcon, "Middle square HP": self.middlesqHPcon,
+                            "Middle ring LP": self.middlerinLPcon,
+                            "Middle ring HP": self.middlerinHPcon}
+        else:
+            self.options = {"Dolnoprzepustowa Okrągła":
+                                self.roundLPcon, "Górnoprzepustowa Okrągła": self.roundHPcon,
+                            "Dolnoprzepustowa Kwadratowa": self.squareLPcon,
+                            "Górnoprzepustowa Kwadratowa": self.squareHPcon, "Gaussian LP": self.gaussLPcon,
+                            "Gaussian HP": self.gaussHPcon, "Butterworth LP": self.butterLPcon,
+                            "Butterworth HP": self.butterHPcon,
+                            "Środkowo-p kwadrat LP": self.middlesqLPcon, "Środkowo-p kwadrat HP": self.middlesqHPcon,
+                            "Środkowo-p pierścień LP": self.middlerinLPcon,
+                            "Środkowo-p pierścień HP": self.middlerinHPcon}
         self.drop = OptionMenu(self.frame, self.clicked, *self.options, command=self.switch)
-        self.frame.pack(padx=10, pady=10, side="bottom")
+        # self.drop2 = OptionMenu(window, self.clicked2, "Okrągły", "Kwadratowy")
+        helv20 = tkFont.Font(family='Helvetica', size=20)
+        menu = window.nametowidget(self.drop.menuname)
+        menu.config(font=helv20)  # Set the dropdown menu's font
+
         self.drop.config(font="Calibri 20")
         self.dropLab.grid(row=0, column=2, padx=2)
         self.drop.grid(row=1, column=2, padx=2)
@@ -57,98 +89,153 @@ class Filtracja:
         self.runBtn.grid(row=1, column=1, padx=2)
         self.maskwidthLab.grid(row=0, column=4)
         self.maskwidthSlider.grid(row=1, column=4, padx=2)
-        stop_program.grid(row=1, column=5)
+        exit.grid(row=1, column=5)
 
-        helv20 = tkFont.Font(family='Helvetica', size=20)
-        menu = window.nametowidget(self.drop.menuname)
-        menu.config(font=helv20)
+        self.canvas = None
+
+        self.n = 0
+        self.textfield = None
+        self.img = None
 
     def show_values(self):
         self.rozmiarm = self.maskSlider.get()
 
+    def roundLPcon(self):
+        key_list = list(self.options.keys())
+        val_list = list(self.options.values())
+        position = val_list.index(self.roundLPcon)
+        self.optionVal = key_list[position]
+        print(self.optionVal)
+        self.runBtn.grid_forget()  # usuwa istniejący przycisk
+        self.runBtn.config(text=self.lang.runBt, command=self.drawplot,
+                           font="Calibri 20")  # tworzy nowy przycisk
+        self.runBtn.grid(row=1, column=1)  # ustawia nowy przycisk
+
+    def roundHPcon(self):
+        key_list = list(self.options.keys())
+        val_list = list(self.options.values())
+        position = val_list.index(self.roundHPcon)
+        self.optionVal = key_list[position]
+        print(self.optionVal)
+        self.runBtn.grid_forget()  # usuwa istniejący przycisk
+        self.runBtn.config(text=self.lang.runBt, command=self.drawplot,
+                           font="Calibri 20")  # tworzy nowy przycisk
+        self.runBtn.grid(row=1, column=1)  # ustawia nowy przycisk
+
+    def squareLPcon(self):
+        key_list = list(self.options.keys())
+        val_list = list(self.options.values())
+        position = val_list.index(self.squareLPcon)
+        self.optionVal = key_list[position]
+        print(self.optionVal)
+        self.runBtn.grid_forget()  # usuwa istniejący przycisk
+        self.runBtn.config(text=self.lang.runBt, command=self.drawplot,
+                           font="Calibri 20")  # tworzy nowy przycisk
+        self.runBtn.grid(row=1, column=1)  # ustawia nowy przycisk
+
+    def squareHPcon(self):
+        key_list = list(self.options.keys())
+        val_list = list(self.options.values())
+        position = val_list.index(self.squareHPcon)
+        self.optionVal = key_list[position]
+        print(self.optionVal)
+        self.runBtn.grid_forget()  # usuwa istniejący przycisk
+        self.runBtn.config(text=self.lang.runBt, command=self.drawplot,
+                           font="Calibri 20")  # tworzy nowy przycisk
+        self.runBtn.grid(row=1, column=1)  # ustawia nowy przycisk
+
+    def gaussLPcon(self):
+        key_list = list(self.options.keys())
+        val_list = list(self.options.values())
+        position = val_list.index(self.gaussLPcon)
+        self.optionVal = key_list[position]
+        print(self.optionVal)
+        self.runBtn.grid_forget()  # usuwa istniejący przycisk
+        self.runBtn.config(text=self.lang.runBt, command=self.drawplot,
+                           font="Calibri 20")  # tworzy nowy przycisk
+        self.runBtn.grid(row=1, column=1)  # ustawia nowy przycisk
+
+    def gaussHPcon(self):
+        key_list = list(self.options.keys())
+        val_list = list(self.options.values())
+        position = val_list.index(self.gaussHPcon)
+        self.optionVal = key_list[position]
+        print(self.optionVal)
+        self.runBtn.grid_forget()  # usuwa istniejący przycisk
+        self.runBtn.config(text=self.lang.runBt, command=self.drawplot,
+                           font="Calibri 20")  # tworzy nowy przycisk
+        self.runBtn.grid(row=1, column=1)  # ustawia nowy przycisk
+
+    def butterLPcon(self):
+        key_list = list(self.options.keys())
+        val_list = list(self.options.values())
+        position = val_list.index(self.butterLPcon)
+        self.optionVal = key_list[position]
+        print(self.optionVal)
+        self.runBtn.grid_forget()  # usuwa istniejący przycisk
+        self.runBtn.config(text=self.lang.runBt, command=self.drawplot,
+                           font="Calibri 20")  # tworzy nowy przycisk
+        self.runBtn.grid(row=1, column=1)  # ustawia nowy przycisk
+
+    def butterHPcon(self):
+        key_list = list(self.options.keys())
+        val_list = list(self.options.values())
+        position = val_list.index(self.butterHPcon)
+        self.optionVal = key_list[position]
+        print(self.optionVal)
+        self.runBtn.grid_forget()  # usuwa istniejący przycisk
+        self.runBtn.config(text=self.lang.runBt, command=self.drawplot,
+                           font="Calibri 20")  # tworzy nowy przycisk
+        self.runBtn.grid(row=1, column=1)  # ustawia nowy przycisk
+
+    def middlesqLPcon(self):
+        key_list = list(self.options.keys())
+        val_list = list(self.options.values())
+        position = val_list.index(self.middlesqLPcon)
+        self.optionVal = key_list[position]
+        print(self.optionVal)
+        self.runBtn.grid_forget()  # usuwa istniejący przycisk
+        self.runBtn.config(text=self.lang.runBt, command=self.drawplot,
+                           font="Calibri 20")  # tworzy nowy przycisk
+        self.runBtn.grid(row=1, column=1)  # ustawia nowy przycisk
+
+    def middlesqHPcon(self):
+        key_list = list(self.options.keys())
+        val_list = list(self.options.values())
+        position = val_list.index(self.middlesqHPcon)
+        self.optionVal = key_list[position]
+        print(self.optionVal)
+        self.runBtn.grid_forget()  # usuwa istniejący przycisk
+        self.runBtn.config(text=self.lang.runBt, command=self.drawplot,
+                           font="Calibri 20")  # tworzy nowy przycisk
+        self.runBtn.grid(row=1, column=1)  # ustawia nowy przycisk
+
+    def middlerinLPcon(self):
+        key_list = list(self.options.keys())
+        val_list = list(self.options.values())
+        position = val_list.index(self.middlerinLPcon)
+        self.optionVal = key_list[position]
+        print(self.optionVal)
+        self.runBtn.grid_forget()  # usuwa istniejący przycisk
+        self.runBtn.config(text=self.lang.runBt, command=self.drawplot,
+                           font="Calibri 20")  # tworzy nowy przycisk
+        self.runBtn.grid(row=1, column=1)  # ustawia nowy przycisk
+
+    def middlerinHPcon(self):
+        key_list = list(self.options.keys())
+        val_list = list(self.options.values())
+        position = val_list.index(self.middlerinHPcon)
+        self.optionVal = key_list[position]
+        self.runBtn.grid_forget()  # usuwa istniejący przycisk
+        self.runBtn.config(text=self.lang.runBt, command=self.drawplot,
+                           font="Calibri 20")  # tworzy nowy przycisk
+        self.runBtn.grid(row=1, column=1)  # ustawia nowy przycisk
+
     def switch(self, value):
         """Metoda służy do przypisywania metod z odpowiednimi maskami do odpowiadających im wyborów z OptionMenu"""
-        option = self.clicked.get()
-        print(value)
-        if option == self.lang.test1:
-            self.optionVal = option
-            self.runBtn.grid_forget()  # usuwa istniejący przycisk
-            self.runBtn.config(text=self.lang.runBt, command=self.drawplot,
-                               font="Calibri 20")  # tworzy nowy przycisk
-            self.runBtn.grid(row=1, column=1)  # ustawia nowy przycisk
-        elif option == self.lang.test2:
-            self.optionVal = option
-            self.runBtn.grid_forget()  # usuwa istniejący przycisk
-            self.runBtn.config(text=self.lang.runBt, command=self.drawplot,
-                               font="Calibri 20")  # tworzy nowy przycisk
-            self.runBtn.grid(row=1, column=1)  # ustawia nowy przycisk
-        elif option == self.lang.test3:
-            self.optionVal = option
-            self.runBtn.grid_forget()  # usuwa istniejący przycisk
-            self.runBtn.config(text=self.lang.runBt, command=self.drawplot,
-                               font="Calibri 20")  # tworzy nowy przycisk
-            self.runBtn.grid(row=1, column=1)  # ustawia nowy przycisk
-        elif option == self.lang.test4:
-            self.optionVal = option
-            self.runBtn.grid_forget()  # usuwa istniejący przycisk
-            self.runBtn.config(text=self.lang.runBt, command=self.drawplot,
-                               font="Calibri 20")  # tworzy nowy przycisk
-            self.runBtn.grid(row=1, column=1)  # ustawia nowy przycisk
-        elif option == self.lang.test5:
-            self.optionVal = option
-            self.runBtn.grid_forget()  # usuwa istniejący przycisk
-            self.runBtn.config(text=self.lang.runBt, command=self.drawplot,
-                               font="Calibri 20")  # tworzy nowy przycisk
-            self.runBtn.grid(row=1, column=1)  # ustawia nowy przycisk
-        elif option == self.lang.test6:
-            self.optionVal = option
-            self.runBtn.grid_forget()  # usuwa istniejący przycisk
-            self.runBtn.config(text=self.lang.runBt, command=self.drawplot,
-                               font="Calibri 20")  # tworzy nowy przycisk
-            self.runBtn.grid(row=1, column=1)  # ustawia nowy przycisk
-        elif option == self.lang.test7:
-            self.optionVal = option
-            self.runBtn.grid_forget()  # usuwa istniejący przycisk
-            self.runBtn.config(text=self.lang.runBt, command=self.drawplot,
-                               font="Calibri 20")  # tworzy nowy przycisk
-            self.runBtn.grid(row=1, column=1)  # ustawia nowy przycisk
-        elif option == self.lang.test8:
-            self.optionVal = option
-            self.runBtn.grid_forget()  # usuwa istniejący przycisk
-            self.runBtn.config(text=self.lang.runBt, command=self.drawplot,
-                               font="Calibri 20")  # tworzy nowy przycisk
-            self.runBtn.grid(row=1, column=1)  # ustawia nowy przycisk
-        elif option == self.lang.test9:
-            self.optionVal = option
-            self.runBtn.grid_forget()  # usuwa istniejący przycisk
-            self.runBtn.config(text=self.lang.runBt, command=self.drawplot,
-                               font="Calibri 20")  # tworzy nowy przycisk
-            self.runBtn.grid(row=1, column=1)  # ustawia nowy przycisk
-        elif option == self.lang.test10:
-            self.optionVal = option
-            self.runBtn.grid_forget()  # usuwa istniejący przycisk
-            self.runBtn.config(text=self.lang.runBt, command=self.drawplot,
-                               font="Calibri 20")  # tworzy nowy przycisk
-            self.runBtn.grid(row=1, column=1)  # ustawia nowy przycisk
-        elif option == self.lang.test11:
-            self.optionVal = option
-            self.runBtn.grid_forget()  # usuwa istniejący przycisk
-            self.runBtn.config(text=self.lang.runBt, command=self.drawplot,
-                               font="Calibri 20")  # tworzy nowy przycisk
-            self.runBtn.grid(row=1, column=1)  # ustawia nowy przycisk
-        elif option == self.lang.test12:
-            self.optionVal = option
-            self.runBtn.grid_forget()  # usuwa istniejący przycisk
-            self.runBtn.config(text=self.lang.runBt, command=self.drawplot,
-                               font="Calibri 20")  # tworzy nowy przycisk
-            self.runBtn.grid(row=1, column=1)  # ustawia nowy przycisk
-        else:
-            """Jeżeli wybrana opcja z menu nie została jeszcze zaimplementowana, usuń przycisk"""
-            print("Błąd w option")
-            self.runBtn.grid_forget()
+        self.options[self.clicked.get()]()
 
     def chooseMask(self, test):
-        """Metoda steruje odniesieniami do metod zwracających maskę"""
         if test == self.lang.test1:
             return self.center * self.idealFilterLP(self.rozmiarm, self.img.shape)
         elif test == self.lang.test2:
@@ -175,7 +262,6 @@ class Filtracja:
             return self.center * self.mediumHP1(self.rozmiarm, self.img.shape, self.maskwidth)
 
     def drawplot(self):
-        """Metoda określa sposób rysowania obrazów przy użyciu matplotlib"""
         if self.canvas is not None:
             self.plotframe.destroy()
             self.plotframe = Frame(self.window)
@@ -206,6 +292,7 @@ class Filtracja:
         self.tick_remover()
 
         LowPassCenter = self.chooseMask(self.optionVal)
+
         plt.subplot2grid((3, 3), (2, 2), colspan=1), plt.imshow(np.log(1 + np.abs(LowPassCenter)), "gray"), plt.title(
             self.lang.filtr)
         self.tick_remover()
@@ -228,7 +315,6 @@ class Filtracja:
         self.canvas.get_tk_widget().pack()
 
     def tick_remover(self):
-        """Usuwa skalę z wybranego subplota"""
         plt.tick_params(left=False,
                         bottom=False,
                         labelleft=False,
@@ -380,10 +466,9 @@ class Filtracja:
         return base
 
     def select_file(self):
-        """Umożliwia wczytanie pliku BMP w celu jego przetworzenia"""
         filetypes = (
             ('BMP files', '*.bmp'),
-            ('All files', '*')
+            ('text files', '*.txt')
 
         )
         self.imaddr = fd.askopenfilename(
@@ -406,41 +491,39 @@ class Filtracja:
         self.rozmiarm = self.rozmiarm
 
     def quit_me(self):
-        """Niszczy widok"""
         print('quit')
         self.window.quit()
         self.window.destroy()
 
 
 def quit_me():
-    """Niszczy widok"""
     print('quit')
     root.quit()
     root.destroy()
 
+
 def change_lang(getlang):
-    """Umożliwia zmianę języka"""
-    if getlang == "pl":
-        lang = getlang
-    else:
-        lang = getlang
     quit_me()
     top = Tk()
+
     top.attributes('-fullscreen', True)
     if getlang == "pl":
         top.title("Transformacja Fouriera")
     else:
         top.title("Fourier transform")
 
-    b = Filtracja(top, "kosc.bmp", lang)
+    b = Filtracja(top, "kosc.bmp", getlang)
 
     top.mainloop()
 
+
 def en():
-    change_lang(Lang_EN())
+    change_lang("en")
+
 
 def pl():
-    change_lang(Lang_PL())
+    change_lang("pl")
+
 
 root = Tk()
 root.protocol("WM_DELETE_WINDOW", quit_me)
@@ -450,5 +533,3 @@ polish.pack()
 english = Button(text="English language", command=en)
 english.pack()
 root.mainloop()
-
-
