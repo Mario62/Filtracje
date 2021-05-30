@@ -3,7 +3,7 @@ from tkinter.messagebox import showinfo
 from tkinter import filedialog as fd
 from tkinter import font as tkFont
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg)
-from lang.Lang_EN import Lang_EN, Lang_PL
+from lang.Lang import Lang_EN, Lang_PL
 
 import math
 import cv2

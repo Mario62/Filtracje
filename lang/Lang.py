@@ -17,10 +17,10 @@ class Lang_EN:
     test6 = "Gauss HP"
     test7 = "Butterworth LP"
     test8 = "Butterworth HP"
-    test9 = "Middle square LP"
-    test10 = "Middle square HP"
-    test11 = "Middle ring LP"
-    test12 = "Middle ring HP"
+    test9 = "Central square LP"
+    test10 = "Central square HP"
+    test11 = "Central ring LP"
+    test12 = "Central ring HP"
     orgplot = "Original image"
     ampl = "Spectrum"
     angle = "Angle"
@@ -29,18 +29,17 @@ class Lang_EN:
     exit = "Close program"
     maskwidthLab = "Width of mask"
 
-
 class Lang_PL:
     LabelFrame = "Przyciski kontrolne"
     runBt = "Pokaż wynik"
     fileBtn = "Wczytaj obraz"
     dropLab = "Wybór maski"
     maskSlider = "Rozmiar maski"
-    options = ("Dolnoprzepustowa Okrągła", "Górnoprzepustowa Okrągła", "Dolnoprzepustowa Kwadratowa",
-               "Górnoprzepustowa Kwadratowa", "Gaussian LP",
-               "Gaussian HP", "Butterworth LP", "Butterworth HP",
-               "Środkowo-p kwadrat LP", "Środkowo-p kwadrat HP", "Środkowo-p pierścień LP",
-               "Środkowo-p pierścień HP")
+    # options = ("Dolnoprzepustowa Okrągła", "Górnoprzepustowa Okrągła", "Dolnoprzepustowa Kwadratowa",
+    #            "Górnoprzepustowa Kwadratowa", "Gaussian LP",
+    #            "Gaussian HP", "Butterworth LP", "Butterworth HP",
+    #            "Środkowo-p kwadrat LP", "Środkowo-p kwadrat HP", "Środkowo-p pierścień LP",
+    #            "Środkowo-p pierścień HP")
     test1 = "Dolnoprzepustowa Okrągła"
     test2 = "Górnoprzepustowa Okrągła"
     test3 = "Dolnoprzepustowa Kwadratowa"
