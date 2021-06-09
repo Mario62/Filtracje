@@ -20,41 +20,44 @@ class Filtracja:
         else:
             self.lang = Lang_PL()
 
+        # Inicjalizacja zmiennych
         self.option = None
         self.optionVal = None
         self.center = None
         self.rozmiarm = 50
         self.maskwidth = 20
         self.window = window
-        # self.drop2 = None
+        self.canvas = None
+        self.n = 0
+        self.textfield = None
+        self.img = None
+
+        # Ustawienie Frameów (coś w rodzaju div z HTML, wydzielony obszar)
         self.plotframe = Frame(self.window)
         self.plotframe.pack(side="top")
-
         self.frame = LabelFrame(window, text=self.lang.LabelFrame, padx=5, pady=10)
-
         self.frame.pack(padx=10, pady=10, side="bottom")
-        self.runBtn = Button(self.frame, text=self.lang.runBt, font="Calibri 20")
 
-        # self.filename = ""
         self.imaddr = imaddr
-        # self.box = Entry(window)
 
+        # Tworzenie i rozmieszczanie przycisków
+        self.runBtn = Button(self.frame, text=self.lang.runBt, font="Calibri 20")
         self.fileBtn = Button(self.frame, text=self.lang.fileBtn, font="Calibri 20", command=self.select_file)
         exit = Button(self.frame, text=self.lang.exit, command=self.quit_me)
         self.dropLab = Label(self.frame, font="Calibri 20", text=self.lang.dropLab)
-
         self.maskSlider = Scale(self.frame, from_=0, to=100, tickinterval=25, length=300, orient=HORIZONTAL,
                                 font="Calibri 16")
         self.maskwidthSlider = Scale(self.frame, from_=0, to=100, tickinterval=25, length=300, orient=HORIZONTAL,
                                      font="Calibri 16")
         maskLab = Label(self.frame, font="Calibri 20", text=self.lang.maskSlider)
         self.maskwidthLab = Label(self.frame, font="Calibri 20", text=self.lang.maskwidthLab)
-        # langBtn = Button(self.frame, text="zmień język", command=self.change_lang)
-        # langBtn.grid(row=0, column=0)
+
+        # Ustawianie wartości domyślnych dla niektórych przycisków
         self.maskSlider.set(50)
         self.maskwidthSlider.set(20)
         self.clicked = StringVar()
         self.clicked2 = StringVar()
+
         if lang == "en":
             self.options = {"Low pass Round":
                                 self.roundLPcon, "High pass Round": self.roundHPcon, "Low pass square": self.squareLPcon,
@@ -74,12 +77,14 @@ class Filtracja:
                             "Środkowo-p kwadrat LP": self.middlesqLPcon, "Środkowo-p kwadrat HP": self.middlesqHPcon,
                             "Środkowo-p pierścień LP": self.middlerinLPcon,
                             "Środkowo-p pierścień HP": self.middlerinHPcon}
+
         self.drop = OptionMenu(self.frame, self.clicked, *self.options, command=self.switch)
         # self.drop2 = OptionMenu(window, self.clicked2, "Okrągły", "Kwadratowy")
         helv20 = tkFont.Font(family='Helvetica', size=20)
         menu = window.nametowidget(self.drop.menuname)
-        menu.config(font=helv20)  # Set the dropdown menu's font
+        menu.config(font=helv20)
 
+        # Ustawianie rozmieszczenia elementów wewnątrz Frame'a
         self.drop.config(font="Calibri 20")
         self.dropLab.grid(row=0, column=2, padx=2)
         self.drop.grid(row=1, column=2, padx=2)
@@ -91,20 +96,16 @@ class Filtracja:
         self.maskwidthSlider.grid(row=1, column=4, padx=2)
         exit.grid(row=1, column=5)
 
-        self.canvas = None
 
-        self.n = 0
-        self.textfield = None
-        self.img = None
 
     def show_values(self):
         self.rozmiarm = self.maskSlider.get()
 
     def roundLPcon(self):
-        key_list = list(self.options.keys())
-        val_list = list(self.options.values())
-        position = val_list.index(self.roundLPcon)
-        self.optionVal = key_list[position]
+        key_list = list(self.options.keys())        # Tworzę listę z kluczy w słowniku
+        val_list = list(self.options.values())      # Tworzę listę z wartości w słowniku
+        position = val_list.index(self.roundLPcon)  # Znajduję indeks pod jakim znajduje się wartość (nazwa metody)
+        self.optionVal = key_list[position]         # Ustawiana jest wartość (nazwa tej metody)
         print(self.optionVal)
         self.runBtn.grid_forget()  # usuwa istniejący przycisk
         self.runBtn.config(text=self.lang.runBt, command=self.drawplot,
@@ -274,7 +275,7 @@ class Filtracja:
 
         self.img = cv2.imread(self.imaddr, 0)
         plt.subplot2grid((2, 2), (0, 0)), plt.imshow(self.img, "gray"), plt.title(self.lang.orgplot)
-        self.tick_remover()
+        self.tick_remover() # Usuwa elementy takie jak skala z plotów
         # plot1 = fig.add_subplot(161)
         # plot1.imshow(img, "gray")
 
@@ -311,7 +312,7 @@ class Filtracja:
                                         master=self.plotframe)
         self.canvas.draw()
 
-        # placing the canvas on the Tkinter window
+        # Ustawianie widoku plotów wewnątrz Frame'a
         self.canvas.get_tk_widget().pack()
 
     def tick_remover(self):
@@ -468,7 +469,7 @@ class Filtracja:
     def select_file(self):
         filetypes = (
             ('BMP files', '*.bmp'),
-            ('text files', '*.txt')
+            ('All files', '*.*')
 
         )
         self.imaddr = fd.askopenfilename(
@@ -506,13 +507,13 @@ def change_lang(getlang):
     quit_me()
     top = Tk()
 
-    top.attributes('-fullscreen', True)
+    top.attributes('-fullscreen', True) # Zapewnia fullscreen całej aplikacji
     if getlang == "pl":
         top.title("Transformacja Fouriera")
     else:
         top.title("Fourier transform")
 
-    b = Filtracja(top, "kosc.bmp", getlang)
+    Filtracja(top, "kosc.bmp", getlang)
 
     top.mainloop()
 
