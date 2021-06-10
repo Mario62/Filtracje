@@ -35,7 +35,7 @@ class Filtracja:
         # Ustawienie Frameów (coś w rodzaju div z HTML, wydzielony obszar)
         self.plotframe = Frame(self.window)
         self.plotframe.pack(side="top")
-        self.frame = Frame(window, padx=5, pady=10)
+        self.frame = LabelFrame(window, text=self.lang.LabelFrame, padx=5, pady=10)
         self.frame.pack(padx=10, pady=10, side="bottom")
 
         self.imaddr = imaddr
