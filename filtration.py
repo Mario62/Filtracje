@@ -59,9 +59,9 @@ class Filtracja:
         self.clicked2 = StringVar()
 
         if lang == "en":
-            self.options = {"Low pass Round":
-                                self.roundLPcon, "High pass Round": self.roundHPcon, "Low pass square": self.squareLPcon,
-                            "High pass square": self.squareHPcon, "Gauss LP": self.gaussLPcon,
+            self.options = {"Lowpass Round":
+                                self.roundLPcon, "Highpass Round": self.roundHPcon, "Lowpass square": self.squareLPcon,
+                            "Highpass square": self.squareHPcon, "Gauss LP": self.gaussLPcon,
                             "Gauss HP": self.gaussHPcon, "Butterworth LP": self.butterLPcon,
                             "Butterworth HP": self.butterHPcon,
                             "Middle square LP": self.middlesqLPcon, "Middle square HP": self.middlesqHPcon,
@@ -105,7 +105,7 @@ class Filtracja:
         key_list = list(self.options.keys())        # Tworzę listę z kluczy w słowniku
         val_list = list(self.options.values())      # Tworzę listę z wartości w słowniku
         position = val_list.index(self.roundLPcon)  # Znajduję indeks pod jakim znajduje się wartość (nazwa metody)
-        self.optionVal = key_list[position]         # Ustawiana jest wartość (nazwa tej metody)
+        self.optionVal = key_list[position]        # Ustawiana jest wartość (nazwa tej metody)
         print(self.optionVal)
         self.runBtn.grid_forget()  # usuwa istniejący przycisk
         self.runBtn.config(text=self.lang.runBt, command=self.drawplot,
