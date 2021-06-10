@@ -43,7 +43,7 @@ class Filtracja:
         # Tworzenie i rozmieszczanie przycisków
         self.runBtn = Button(self.frame, text=self.lang.runBt, font="Calibri 20")
         self.fileBtn = Button(self.frame, text=self.lang.fileBtn, font="Calibri 20", command=self.select_file)
-        exit = Button(self.frame, text=self.lang.exit, command=self.quit_me)
+        exit = Button(self.frame, text=self.lang.exit, command=self.quit_me, font="Calibiri 20")
         self.dropLab = Label(self.frame, font="Calibri 20", text=self.lang.dropLab)
         self.maskSlider = Scale(self.frame, from_=0, to=100, tickinterval=25, length=300, orient=HORIZONTAL,
                                 font="Calibri 16")
@@ -59,9 +59,9 @@ class Filtracja:
         self.clicked2 = StringVar()
 
         if lang == "en":
-            self.options = {"Low pass Round":
-                                self.roundLPcon, "High pass Round": self.roundHPcon, "Low pass square": self.squareLPcon,
-                            "High pass square": self.squareHPcon, "Gauss LP": self.gaussLPcon,
+            self.options = {"Lowpass Round":
+                                self.roundLPcon, "Highpass Round": self.roundHPcon, "Lowpass square": self.squareLPcon,
+                            "Highpass square": self.squareHPcon, "Gauss LP": self.gaussLPcon,
                             "Gauss HP": self.gaussHPcon, "Butterworth LP": self.butterLPcon,
                             "Butterworth HP": self.butterHPcon,
                             "Middle square LP": self.middlesqLPcon, "Middle square HP": self.middlesqHPcon,
