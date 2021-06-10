@@ -35,7 +35,7 @@ class Filtracja:
         # Ustawienie Frameów (coś w rodzaju div z HTML, wydzielony obszar)
         self.plotframe = Frame(self.window)
         self.plotframe.pack(side="top")
-        self.frame = LabelFrame(window, text=self.lang.LabelFrame, padx=5, pady=10)
+        self.frame = Frame(window, padx=5, pady=10)
         self.frame.pack(padx=10, pady=10, side="bottom")
 
         self.imaddr = imaddr
@@ -59,9 +59,9 @@ class Filtracja:
         self.clicked2 = StringVar()
 
         if lang == "en":
-            self.options = {"Lowpass round":
-                                self.roundLPcon, "Highpass round": self.roundHPcon, "Lowpass square": self.squareLPcon,
-                            "Highpass square": self.squareHPcon, "Gauss LP": self.gaussLPcon,
+            self.options = {"Low pass Round":
+                                self.roundLPcon, "High pass Round": self.roundHPcon, "Low pass square": self.squareLPcon,
+                            "High pass square": self.squareHPcon, "Gauss LP": self.gaussLPcon,
                             "Gauss HP": self.gaussHPcon, "Butterworth LP": self.butterLPcon,
                             "Butterworth HP": self.butterHPcon,
                             "Middle square LP": self.middlesqLPcon, "Middle square HP": self.middlesqHPcon,
