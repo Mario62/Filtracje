@@ -41,16 +41,22 @@ class Filtracja:
         self.imaddr = imaddr
 
         # Tworzenie i rozmieszczanie przycisków
-        self.runBtn = Button(self.frame, text=self.lang.runBt, font="Calibri 20")
-        self.fileBtn = Button(self.frame, text=self.lang.fileBtn, font="Calibri 20", command=self.select_file)
-        exit = Button(self.frame, text=self.lang.exit, font="Calibri 20", command=self.quit_me)
-        self.dropLab = Label(self.frame, font="Calibri 20", text=self.lang.dropLab)
+        self.runBtn = Button(
+            self.frame, text=self.lang.runBt, font="Calibri 20")
+        self.fileBtn = Button(self.frame, text=self.lang.fileBtn,
+                              font="Calibri 20", command=self.select_file)
+        exit = Button(self.frame, text=self.lang.exit,
+                      font="Calibri 20", command=self.quit_me)
+        self.dropLab = Label(self.frame, font="Calibri 20",
+                             text=self.lang.dropLab)
         self.maskSlider = Scale(self.frame, from_=0, to=100, tickinterval=25, length=300, orient=HORIZONTAL,
                                 font="Calibri 16")
         self.maskwidthSlider = Scale(self.frame, from_=0, to=100, tickinterval=25, length=300, orient=HORIZONTAL,
                                      font="Calibri 16")
-        maskLab = Label(self.frame, font="Calibri 20", text=self.lang.maskSlider)
-        self.maskwidthLab = Label(self.frame, font="Calibri 20", text=self.lang.maskwidthLab)
+        maskLab = Label(self.frame, font="Calibri 20",
+                        text=self.lang.maskSlider)
+        self.maskwidthLab = Label(
+            self.frame, font="Calibri 20", text=self.lang.maskwidthLab)
 
         # Ustawianie wartości domyślnych dla niektórych przycisków
         self.maskSlider.set(50)
@@ -60,7 +66,7 @@ class Filtracja:
 
         if lang == "en":
             self.options = {"Lowpass Round":
-                                self.roundLPcon, "Highpass Round": self.roundHPcon, "Lowpass square": self.squareLPcon,
+                            self.roundLPcon, "Highpass Round": self.roundHPcon, "Lowpass square": self.squareLPcon,
                             "Highpass square": self.squareHPcon, "Gauss LP": self.gaussLPcon,
                             "Gauss HP": self.gaussHPcon, "Butterworth LP": self.butterLPcon,
                             "Butterworth HP": self.butterHPcon,
@@ -69,7 +75,7 @@ class Filtracja:
                             "Middle ring HP": self.middlerinHPcon}
         else:
             self.options = {"Dolnoprzepustowa Okrągła":
-                                self.roundLPcon, "Górnoprzepustowa Okrągła": self.roundHPcon,
+                            self.roundLPcon, "Górnoprzepustowa Okrągła": self.roundHPcon,
                             "Dolnoprzepustowa Kwadratowa": self.squareLPcon,
                             "Górnoprzepustowa Kwadratowa": self.squareHPcon, "Gaussian LP": self.gaussLPcon,
                             "Gaussian HP": self.gaussHPcon, "Butterworth LP": self.butterLPcon,
@@ -78,7 +84,8 @@ class Filtracja:
                             "Środkowo-p pierścień LP": self.middlerinLPcon,
                             "Środkowo-p pierścień HP": self.middlerinHPcon}
 
-        self.drop = OptionMenu(self.frame, self.clicked, *self.options, command=self.switch)
+        self.drop = OptionMenu(self.frame, self.clicked,
+                               *self.options, command=self.switch)
         # self.drop2 = OptionMenu(window, self.clicked2, "Okrągły", "Kwadratowy")
         helv20 = tkFont.Font(family='Helvetica', size=20)
         menu = window.nametowidget(self.drop.menuname)
@@ -96,16 +103,18 @@ class Filtracja:
         self.maskwidthSlider.grid(row=1, column=4, padx=2)
         exit.grid(row=1, column=5)
 
-
-
     def show_values(self):
         self.rozmiarm = self.maskSlider.get()
 
     def roundLPcon(self):
-        key_list = list(self.options.keys())        # Tworzę listę z kluczy w słowniku
-        val_list = list(self.options.values())      # Tworzę listę z wartości w słowniku
-        position = val_list.index(self.roundLPcon)  # Znajduję indeks pod jakim znajduje się wartość (nazwa metody)
-        self.optionVal = key_list[position]        # Ustawiana jest wartość (nazwa tej metody)
+        # Tworzę listę z kluczy w słowniku
+        key_list = list(self.options.keys())
+        # Tworzę listę z wartości w słowniku
+        val_list = list(self.options.values())
+        # Znajduję indeks pod jakim znajduje się wartość (nazwa metody)
+        position = val_list.index(self.roundLPcon)
+        # Ustawiana jest wartość (nazwa tej metody)
+        self.optionVal = key_list[position]
         print(self.optionVal)
         self.runBtn.grid_forget()  # usuwa istniejący przycisk
         self.runBtn.config(text=self.lang.runBt, command=self.drawplot,
@@ -274,8 +283,9 @@ class Filtracja:
         # fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
 
         self.img = cv2.imread(self.imaddr, 0)
-        plt.subplot2grid((2, 2), (0, 0)), plt.imshow(self.img, "gray"), plt.title(self.lang.orgplot)
-        self.tick_remover() # Usuwa elementy takie jak skala z plotów
+        plt.subplot2grid((2, 2), (0, 0)), plt.imshow(
+            self.img, "gray"), plt.title(self.lang.orgplot)
+        self.tick_remover()  # Usuwa elementy takie jak skala z plotów
         # plot1 = fig.add_subplot(161)
         # plot1.imshow(img, "gray")
 
@@ -315,6 +325,8 @@ class Filtracja:
         # Ustawianie widoku plotów wewnątrz Frame'a
         self.canvas.get_tk_widget().pack()
 
+        plt.close()
+
     def tick_remover(self):
         plt.tick_params(left=False,
                         bottom=False,
@@ -352,7 +364,8 @@ class Filtracja:
         center = (rows / 2, cols / 2)
         for x in range(cols):
             for y in range(rows):
-                base[y, x] = 1 / (1 + (self.distance((y, x), center) / D0) ** (2 * n))
+                base[y, x] = 1 / \
+                    (1 + (self.distance((y, x), center) / D0) ** (2 * n))
         return base
 
     def butterworthHP(self, D0, imgShape, n):
@@ -363,7 +376,8 @@ class Filtracja:
         center = (rows / 2, cols / 2)
         for x in range(cols):
             for y in range(rows):
-                base[y, x] = 1 - 1 / (1 + (self.distance((y, x), center) / D0) ** (2 * n))
+                base[y, x] = 1 - 1 / \
+                    (1 + (self.distance((y, x), center) / D0) ** (2 * n))
         return base
 
     def gaussianLP(self, D0, imgShape):
@@ -374,7 +388,8 @@ class Filtracja:
         center = (rows / 2, cols / 2)
         for x in range(cols):
             for y in range(rows):
-                base[y, x] = math.exp(((-self.distance((y, x), center) ** 2) / (2 * (D0 ** 2))))
+                base[y, x] = math.exp(
+                    ((-self.distance((y, x), center) ** 2) / (2 * (D0 ** 2))))
         return base
 
     def gaussianHP(self, D0, imgShape):
@@ -385,7 +400,9 @@ class Filtracja:
         center = (rows / 2, cols / 2)
         for x in range(cols):
             for y in range(rows):
-                base[y, x] = 1 - math.exp(((-self.distance((y, x), center) ** 2) / (2 * (D0 ** 2))))
+                base[y, x] = 1 - \
+                    math.exp(
+                        ((-self.distance((y, x), center) ** 2) / (2 * (D0 ** 2))))
         return base
 
     def mediumLP1(self, D0, imgShape, width):
@@ -507,7 +524,7 @@ def change_lang(getlang):
     quit_me()
     top = Tk()
 
-    top.attributes('-fullscreen', True) # Zapewnia fullscreen całej aplikacji
+    top.attributes('-fullscreen', True)  # Zapewnia fullscreen całej aplikacji
     if getlang == "pl":
         top.title("Transformacja Fouriera")
     else:
