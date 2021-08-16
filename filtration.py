@@ -626,9 +626,10 @@ def change_lang(getlang):
     try:
         quit_me()
         top = Tk()
+        top.geometry("1800x1000")
 
         # Zapewnia fullscreen całej aplikacji
-        top.attributes('-fullscreen', True)
+        # top.attributes('-fullscreen', True)
         if getlang == "pl":
             top.title("Transformacja Fouriera")
         else:
