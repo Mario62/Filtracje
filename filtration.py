@@ -585,7 +585,7 @@ class Filtracja:
             )
             self.imaddr = fd.askopenfilename(
                 title='Open a file',
-                initialdir='/',
+                initialdir=self.__dir__(),
                 filetypes=filetypes)
             self.imaddr.encode('unicode_escape')
             print(self.imaddr)
