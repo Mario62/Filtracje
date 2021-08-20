@@ -27,7 +27,7 @@ class Filtracja:
             self.center = None
             self.rozmiarm = 50
             self.maskwidth = 20
-            self.window = window
+            self.window = Tk()
             self.canvas = None
             self.n = 0
             self.textfield = None
@@ -585,7 +585,7 @@ class Filtracja:
             )
             self.imaddr = fd.askopenfilename(
                 title='Open a file',
-                initialdir='/',
+                initialdir=self.__dir__(),
                 filetypes=filetypes)
             self.imaddr.encode('unicode_escape')
             print(self.imaddr)
