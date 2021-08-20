@@ -3,3 +3,5 @@
 /workspace.xml
 /misc.xml
 /Filtracje.iml
+/.venv
+/lang/__pycache__

@@ -14,13 +14,10 @@ https://hicraigchen.medium.com/digital-image-processing-using-fourier-transform-
 
 ## How to use
 ```
-python3.8.exe -m pip install opencv-contrib-python
-python3.8.exe
->>> import math
->>> import numpy as np
->>> import matplotlib.pyplot as plt
->>> quit()
-python3.8.exe filtration.py
+python -m venv .venv
+./.venv/Scripts/activate
+python -m pip install opencv-contrib-python matplotlib
+python filtration.py
 ```
 
 The first thing to do to run the example is to choose the type of mask 
