@@ -27,7 +27,7 @@ class Filtracja:
             self.center = None
             self.rozmiarm = 50
             self.maskwidth = 20
-            self.window = Tk()
+            self.window = window
             self.canvas = None
             self.n = 0
             self.textfield = None
