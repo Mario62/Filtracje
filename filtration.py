@@ -328,7 +328,7 @@ class Filtracja:
 
             self.rozmiarm = self.maskSlider.get()
             self.maskwidth = self.maskwidthSlider.get()
-            fig = plt.figure(figsize=(7, 7), dpi=80)
+            fig = plt.figure(figsize=(7, 7), dpi=50)
             # fig.canvas.manager.full_screen_toggle()  # ustawia na fullscreen
 
             self.img = cv2.imread(self.imaddr, 0)
@@ -627,7 +627,7 @@ def change_lang(getlang):
         quit_me()
         top = Tk()
         top.geometry("1000x700")
-        top.tk.call('tk', 'scaling', .5)
+        top.tk.call('tk', 'scaling', .7)
 
         # Zapewnia fullscreen całej aplikacji
         # top.attributes('-fullscreen', True)
