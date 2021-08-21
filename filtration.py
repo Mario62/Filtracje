@@ -626,7 +626,7 @@ def change_lang(getlang):
     try:
         quit_me()
         top = Tk()
-        top.geometry("1000x700")
+        top.geometry("1150x500")
         top.tk.call('tk', 'scaling', .7)
 
         # Zapewnia fullscreen całej aplikacji
