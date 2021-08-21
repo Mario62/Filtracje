@@ -2,7 +2,7 @@ class Lang_EN:
     LabelFrame = "Controls"
     runBt = "Show result"
     fileBtn = "Load image"
-    dropLab = "Choose mask"
+    dropLab = "Choose the mask"
     maskSlider = "Size of the mask"
     # options = {"Low pass Round": self.LPround(), "High pass Round": self.LPround(), "Low pass square": self.LPround(),
     #            "High pass square": self.LPround(), "Gauss LP": self.LPround(),
@@ -28,6 +28,7 @@ class Lang_EN:
     result = "Filtered image"
     exit = "Close program"
     maskwidthLab = "Width of the mask"
+
 
 class Lang_PL:
     LabelFrame = "Przyciski kontrolne"
