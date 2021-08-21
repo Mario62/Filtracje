@@ -20,6 +20,13 @@ python -m pip install opencv-contrib-python matplotlib
 python filtration.py
 ```
 
+If you want to build executable program for Windows, use code below:
+```
+./.venv/Scripts/activate
+pip install pyinstaller  
+pyinstaller --onefile --noconsole .\filtration.py
+```
+
 The first thing to do to run the example is to choose the type of mask 
 you want to apply.
 
