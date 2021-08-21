@@ -5,3 +5,8 @@
 /Filtracje.iml
 /.venv
 /lang/__pycache__
+/build
+/dist
+/__pycache__
+/filtration.exe
+/filtration.spec
